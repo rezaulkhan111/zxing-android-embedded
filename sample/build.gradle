@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion project.androidTargetSdk
+    namespace 'example.zxing'
 
     defaultConfig {
         multiDexEnabled true
@@ -17,7 +18,7 @@ android {
     def keystoreAlias
 
     try {
-        Properties properties = new Properties()
+        def properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
         keystoreFile = properties.getProperty('keystore.file')
         keystorePassword = properties.getProperty('keystore.password')
@@ -54,8 +55,8 @@ android {
 
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     lintOptions {
