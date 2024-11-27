@@ -27,4 +27,5 @@ public class CustomDataModel {
     @NonNull
     public String buttonText;
     public String buttonColor;
+    public String buttonTextColor;
 }

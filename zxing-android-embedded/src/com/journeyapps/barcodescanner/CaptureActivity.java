@@ -17,7 +17,7 @@ import com.google.zxing.client.android.R;
 /**
  *
  */
-public class CaptureActivity extends AppCompatActivity {
+public class CaptureActivity extends AppCompatActivity implements BSCallBack {
     private CaptureManager capture;
     private DecoratedBarcodeView barcodeScannerView;
 
@@ -26,7 +26,6 @@ public class CaptureActivity extends AppCompatActivity {
     private ImageView ivOrderProduct;
     private TextView tvOrderProductName;
     private TextView tvOrderProductWeight;
-    private TextView tvCantScanBarcode;
     private TextView tvToolbarTitle;
 
     private BarcodeScanBSF bsBarcodeScan;
@@ -51,7 +50,7 @@ public class CaptureActivity extends AppCompatActivity {
             if (customDataValue != null && customDataValue != "") {
                 mCustomDataModel = new Gson().fromJson(customDataValue, CustomDataModel.class);
                 initUiFunction();
-                bsBarcodeScan = new BarcodeScanBSF(mCustomDataModel);
+                bsBarcodeScan = new BarcodeScanBSF(mCustomDataModel, this);
             }
         }
     }
@@ -63,14 +62,14 @@ public class CaptureActivity extends AppCompatActivity {
         ivOrderProduct = findViewById(R.id.ivOrderProduct);
         tvOrderProductName = findViewById(R.id.tvOrderProductName);
         tvOrderProductWeight = findViewById(R.id.tvOrderProductWeight);
-        tvCantScanBarcode = findViewById(R.id.tvCantScanBarcode);
+        TextView tvCantScanBarcode = findViewById(R.id.tvCantScanBarcode);
 
         tvCantScanBarcode.setOnClickListener(v -> {
             bottomSheetOpenClose(bsBarcodeScan);
         });
 
         ivClose.setOnClickListener(v -> {
-            bsBarcodeScan.dismiss();
+            finish();
         });
     }
 
@@ -132,5 +131,10 @@ public class CaptureActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onCloseScanActivity() {
+        finish();
     }
 }

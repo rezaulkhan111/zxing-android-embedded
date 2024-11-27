@@ -49,7 +49,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void scanBarcode(View view) {
         CustomDataModel aaa = new CustomDataModel();
+//        aaa.productImage= R.drawable.icon
+        aaa.toolbarTitle = "Title App";
         aaa.productName = "jshdsjjks";
+        aaa.productQuantity = "10 Unit";
+        aaa.bsMessage1 = "message 1";
+        aaa.bsMessage2 = "message222";
+        aaa.buttonText = "Button Text";
+        aaa.buttonColor = "#00AC11";
+        aaa.buttonTextColor = "#FFFFFF";
 
         ScanOptions options = new ScanOptions().addExtra(Util.dataTransfer_Key, new Gson().toJson(aaa));
         options.setOrientationLocked(true);

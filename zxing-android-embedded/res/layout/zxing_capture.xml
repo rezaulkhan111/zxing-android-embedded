@@ -39,7 +39,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="40dp"
                         android:layout_marginStart="16dp"
-                        android:src="@drawable/ic_baseline_close_24"
+                        android:src="@drawable/zxing_ic_baseline_close_24"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -101,7 +101,7 @@
                         android:layout_width="48sp"
                         android:layout_height="48sp"
                         android:layout_marginStart="10dp"
-                        android:src="@drawable/ic_baseline_arrow_back_24"
+                        android:src="@drawable/zxing_ic_baseline_arrow_back_24"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -147,7 +147,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="10dp"
-                    android:paddingVertical="5dp"
+                    android:paddingVertical="10dp"
                     android:text="Can't Scan Barcode"
                     android:textColor="@color/zxing_color_custom"
                     android:textSize="15sp"

@@ -1,5 +1,6 @@
 package com.journeyapps.barcodescanner;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,11 @@ public class BarcodeScanBSF extends BottomSheetDialogFragment {
     private Button btnItemIsCorrect;
 
     private CustomDataModel mCDataModel;
+    private BSCallBack mCallBack;
 
-    public BarcodeScanBSF(CustomDataModel mCustomDataModel) {
+    public BarcodeScanBSF(CustomDataModel mCustomDataModel, BSCallBack bsCallBack) {
         mCDataModel = mCustomDataModel;
+        mCallBack = bsCallBack;
     }
 
     @Nullable
@@ -37,10 +40,12 @@ public class BarcodeScanBSF extends BottomSheetDialogFragment {
         tvBarcodeMessage2.setText(mCDataModel.bsMessage2);
 
         btnItemIsCorrect.setText(mCDataModel.buttonText);
-//        btnItemIsCorrect.setBa(mCDataModel.buttonColor);
+        btnItemIsCorrect.setTextColor(Color.parseColor(mCDataModel.buttonTextColor));
+//        btnItemIsCorrect.setBackgroundColor(Color.parseColor(mCDataModel.buttonColor));
 
         btnItemIsCorrect.setOnClickListener(v -> {
             dismiss();
+            mCallBack.onCloseScanActivity();
         });
 
         return vRef;
@@ -56,4 +61,8 @@ public class BarcodeScanBSF extends BottomSheetDialogFragment {
     void initView() {
 
     }
+}
+
+interface BSCallBack {
+    void onCloseScanActivity();
 }

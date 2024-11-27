@@ -9,7 +9,7 @@
     app:behavior_peekHeight="50dp"
     app:behavior_skipCollapsed="true"
     app:cardBackgroundColor="@color/zxing_status_text"
-    app:cardCornerRadius="6dp"
+    app:cardCornerRadius="10dp"
     app:cardElevation="2dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
@@ -56,8 +56,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="40dp"
             android:layout_marginEnd="20dp"
+            android:background="@drawable/zxing_rounded_button"
             android:padding="10dp"
             android:text="Item is correct"
             android:textAllCaps="false"
