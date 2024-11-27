@@ -11,4 +11,6 @@ public class Util {
             throw new IllegalStateException("Must be called from the main thread.");
         }
     }
+
+    public static String dataTransfer_Key = "DataTransfer";
 }

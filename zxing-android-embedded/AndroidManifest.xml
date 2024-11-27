@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-<!--    package="com.google.zxing.client.android"-->
+    <!--    package="com.google.zxing.client.android"-->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Don't require camera, as this requires a rear camera. This allows it to work on the Nexus 7 -->
     <uses-feature
@@ -28,9 +28,8 @@
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:clearTaskOnLaunch="true"
-            android:screenOrientation="sensorLandscape"
             android:stateNotNeeded="true"
-            android:theme="@style/zxing_CaptureTheme"
+            android:theme="@style/zxing_NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 </manifest>

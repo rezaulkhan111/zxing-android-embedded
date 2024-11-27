@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+<?xml version="1.0" encoding="UTF-8"?><!--
  Copyright (C) 2008 ZXing authors
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +14,17 @@
  limitations under the License.
  -->
 <resources>
-  <color name="zxing_possible_result_points">#c0ffbd21</color> <!-- Android standard ICS color -->
-  <color name="zxing_result_view">#b0000000</color>
-  <color name="zxing_status_text">#ffffffff</color>
-  <color name="zxing_transparent">#00000000</color>
-  <color name="zxing_viewfinder_laser">#ffcc0000</color> <!-- Android standard ICS color -->
-  <color name="zxing_viewfinder_mask">#60000000</color>
+    <color name="zxing_possible_result_points">#c0ffbd21</color> <!-- Android standard ICS color -->
+    <color name="zxing_result_view">#b0000000</color>
+    <color name="zxing_status_text">#ffffffff</color>
+    <color name="zxing_transparent">#00000000</color>
+    <color name="zxing_viewfinder_laser">#ffcc0000</color> <!-- Android standard ICS color -->
+    <color name="zxing_viewfinder_mask">#60000000</color>
 
-  <color name="zxing_custom_possible_result_points">#903A89CF</color>
-  <color name="zxing_custom_result_view">#b0000000</color>
-  <color name="zxing_custom_viewfinder_laser">#1976D2</color>
-  <color name="zxing_custom_viewfinder_mask">#60000000</color>
+    <color name="zxing_custom_possible_result_points">#903A89CF</color>
+    <color name="zxing_custom_result_view">#b0000000</color>
+    <color name="zxing_custom_viewfinder_laser">#1976D2</color>
+    <color name="zxing_custom_viewfinder_mask">#60000000</color>
+    <color name="zxing_color_custom">#047E94</color>
+    <color name="zxing_color_green">#00AC11</color>
 </resources>

@@ -10,9 +10,12 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.zxing.client.android.Intents;
+import com.journeyapps.barcodescanner.CustomDataModel;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+import com.journeyapps.barcodescanner.Util;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,22 +24,21 @@ import androidx.fragment.app.Fragment;
 
 
 public class MainActivity extends AppCompatActivity {
-    private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(),
-            result -> {
-                if(result.getContents() == null) {
-                    Intent originalIntent = result.getOriginalIntent();
-                    if (originalIntent == null) {
-                        Log.d("MainActivity", "Cancelled scan");
-                        Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
-                    } else if(originalIntent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
-                        Log.d("MainActivity", "Cancelled scan due to missing camera permission");
-                        Toast.makeText(MainActivity.this, "Cancelled due to missing camera permission", Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Log.d("MainActivity", "Scanned");
-                    Toast.makeText(MainActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
-                }
-            });
+    private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
+        if (result.getContents() == null) {
+            Intent originalIntent = result.getOriginalIntent();
+            if (originalIntent == null) {
+                Log.d("MainActivity", "Cancelled scan");
+                Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
+            } else if (originalIntent.hasExtra(Intents.Scan.MISSING_CAMERA_PERMISSION)) {
+                Log.d("MainActivity", "Cancelled scan due to missing camera permission");
+                Toast.makeText(MainActivity.this, "Cancelled due to missing camera permission", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Log.d("MainActivity", "Scanned");
+            Toast.makeText(MainActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+        }
+    });
 
 
     @Override
@@ -46,16 +48,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void scanBarcode(View view) {
-        barcodeLauncher.launch(new ScanOptions());
+        CustomDataModel aaa = new CustomDataModel();
+        aaa.productName = "jshdsjjks";
+
+        ScanOptions options = new ScanOptions().addExtra(Util.dataTransfer_Key, new Gson().toJson(aaa));
+        options.setOrientationLocked(true);
+
+        barcodeLauncher.launch(options);
     }
 
-    public void scanBarcodeInverted(View view){
+    public void scanBarcodeInverted(View view) {
         ScanOptions options = new ScanOptions();
         options.addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.INVERTED_SCAN);
         barcodeLauncher.launch(options);
     }
 
-    public void scanMixedBarcodes(View view){
+    public void scanMixedBarcodes(View view) {
         ScanOptions options = new ScanOptions();
         options.addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.MIXED_SCAN);
         barcodeLauncher.launch(options);
@@ -128,21 +136,19 @@ public class MainActivity extends AppCompatActivity {
      * Sample of scanning from a Fragment
      */
     public static class ScanFragment extends Fragment {
-        private final ActivityResultLauncher<ScanOptions> fragmentLauncher = registerForActivityResult(new ScanContract(),
-                result -> {
-                    if(result.getContents() == null) {
-                        Toast.makeText(getContext(), "Cancelled from fragment", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(getContext(), "Scanned from fragment: " + result.getContents(), Toast.LENGTH_LONG).show();
-                    }
-                });
+        private final ActivityResultLauncher<ScanOptions> fragmentLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() == null) {
+                Toast.makeText(getContext(), "Cancelled from fragment", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), "Scanned from fragment: " + result.getContents(), Toast.LENGTH_LONG).show();
+            }
+        });
 
         public ScanFragment() {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.fragment_scan, container, false);
             Button scan = view.findViewById(R.id.scan_from_fragment);
             scan.setOnClickListener(v -> scanFromFragment());
