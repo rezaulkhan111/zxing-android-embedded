@@ -41,7 +41,10 @@ public class BarcodeScanBSF extends BottomSheetDialogFragment {
 
         btnItemIsCorrect.setText(mCDataModel.buttonText);
         btnItemIsCorrect.setTextColor(Color.parseColor(mCDataModel.buttonTextColor));
-//        btnItemIsCorrect.setBackgroundColor(Color.parseColor(mCDataModel.buttonColor));
+
+        if (mCDataModel.buttonColor != null) {
+            btnItemIsCorrect.setBackgroundColor(Color.parseColor(mCDataModel.buttonColor));
+        }
 
         btnItemIsCorrect.setOnClickListener(v -> {
             dismiss();
