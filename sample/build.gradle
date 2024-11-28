@@ -59,9 +59,9 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
+//    lint {
+//        baseline = file("lint-baseline.xml")
+//    }
 
     lintOptions {
         abortOnError false
