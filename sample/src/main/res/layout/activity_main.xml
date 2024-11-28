@@ -9,98 +9,93 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingBottom="@dimen/activity_vertical_margin">
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scan_barcode"
-            android:onClick="scanBarcode"/>
+            android:onClick="scanBarcode"
+            android:text="@string/scan_barcode" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scan PDF417"
-            android:onClick="scanPDF417"/>
+            android:onClick="scanPDF417"
+            android:text="Scan PDF417" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scan Inverted"
-            android:onClick="scanBarcodeInverted"/>
+            android:onClick="scanBarcodeInverted"
+            android:text="Scan Inverted" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scan Normal and Inverted"
-            android:onClick="scanMixedBarcodes"/>
+            android:onClick="scanMixedBarcodes"
+            android:text="Scan Normal and Inverted" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/any_orientation"
-            android:onClick="scanBarcodeCustomLayout"/>
+            android:onClick="scanBarcodeCustomLayout"
+            android:text="@string/any_orientation" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/front_camera"
-            android:onClick="scanBarcodeFrontCamera"/>
+            android:onClick="scanBarcodeFrontCamera"
+            android:text="@string/front_camera" />
 
         <fragment
             android:id="@+id/fragment_scan"
+            android:name="example.zxing.MainActivity$ScanFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:name="example.zxing.MainActivity$ScanFragment" tools:layout="@layout/fragment_scan" />
-
+            tools:layout="@layout/fragment_scan" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/custom_activity"
-            android:onClick="scanContinuous"/>
+            android:onClick="scanContinuous"
+            android:text="@string/custom_activity" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/toolbar_activity"
-            android:onClick="scanToolbar"/>
+            android:onClick="scanToolbar"
+            android:text="@string/toolbar_activity" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/custom_scanner"
-            android:onClick="scanCustomScanner"/>
+            android:onClick="scanCustomScanner"
+            android:text="@string/custom_scanner" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scanner_with_margin"
-            android:onClick="scanMarginScanner"/>
+            android:onClick="scanMarginScanner"
+            android:text="@string/scanner_with_margin" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/scanner_with_timeout"
-            android:onClick="scanWithTimeout"/>
+            android:onClick="scanWithTimeout"
+            android:text="@string/scanner_with_timeout" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tabs"
-            android:onClick="tabs"/>
+            android:onClick="tabs"
+            android:text="@string/tabs" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/about"
-            android:onClick="about"/>
-
-
+            android:onClick="about"
+            android:text="@string/about" />
     </LinearLayout>
-
-
 </ScrollView>

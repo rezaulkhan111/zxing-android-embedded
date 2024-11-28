@@ -102,7 +102,7 @@ public class DecoratedBarcodeView extends FrameLayout {
         barcodeView.initializeAttributes(attrs);
 
 
-        viewFinder = findViewById(R.id.zxing_viewfinder_view);
+        viewFinder = findViewById(R.id.zxing_viewfinderView);
 
         if (viewFinder == null) {
             throw new IllegalArgumentException(
