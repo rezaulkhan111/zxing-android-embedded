@@ -12,41 +12,41 @@ android {
         versionName "4.1.1"
     }
 
-    def validConfig
-    def keystoreFile
-    def keystorePassword
-    def keystoreAlias
-
-    try {
-        def properties = new Properties()
-        properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        keystoreFile = properties.getProperty('keystore.file')
-        keystorePassword = properties.getProperty('keystore.password')
-        keystoreAlias = properties.getProperty('keystore.alias')
-        validConfig = keystoreFile != null && keystorePassword != null && keystoreAlias != null
-    } catch (error) {
-        validConfig = false
-    }
-
-    if (validConfig) {
-        System.out.println("Release signing configured with " + keystoreFile)
-        signingConfigs {
-            release {
-                storeFile project.rootProject.file(keystoreFile)
-                storePassword keystorePassword
-                keyAlias keystoreAlias
-                keyPassword keystorePassword
-            }
-        }
-    } else {
-        System.out.println("Specify keystore.file, keystore.alias and keystore.password in local.properties to enable release signing.")
-    }
+//    def validConfig
+//    def keystoreFile
+//    def keystorePassword
+//    def keystoreAlias
+//
+//    try {
+//        def properties = new Properties()
+//        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+//        keystoreFile = properties.getProperty('keystore.file')
+//        keystorePassword = properties.getProperty('keystore.password')
+//        keystoreAlias = properties.getProperty('keystore.alias')
+//        validConfig = keystoreFile != null && keystorePassword != null && keystoreAlias != null
+//    } catch (error) {
+//        validConfig = false
+//    }
+//
+//    if (validConfig) {
+//        System.out.println("Release signing configured with " + keystoreFile)
+//        signingConfigs {
+//            release {
+//                storeFile project.rootProject.file(keystoreFile)
+//                storePassword keystorePassword
+//                keyAlias keystoreAlias
+//                keyPassword keystorePassword
+//            }
+//        }
+//    } else {
+//        System.out.println("Specify keystore.file, keystore.alias and keystore.password in local.properties to enable release signing.")
+//    }
 
     buildTypes {
         release {
-            if (validConfig) {
-                signingConfig signingConfigs.release
-            }
+//            if (validConfig) {
+//                signingConfig signingConfigs.release
+//            }
 
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
@@ -60,11 +60,15 @@ android {
     }
 
     lintOptions {
-        // Error: The lint detector
-        //    androidx.appcompat.view.OnClickXmlDetector
-        // called context.getMainProject() during module analysis.
-        disable 'UsingOnClickInXml'
+        abortOnError false
     }
+
+//    lintOptions {
+//        // Error: The lint detector
+//        //    androidx.appcompat.view.OnClickXmlDetector
+//        // called context.getMainProject() during module analysis.
+//        disable 'UsingOnClickInXml'
+//    }
 }
 
 

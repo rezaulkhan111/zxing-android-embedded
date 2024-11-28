@@ -4,29 +4,75 @@ apply plugin: 'signing'
 
 ext.artifactId = 'zxing-android-embedded'
 
-
 // Publishing config from https://getstream.io/blog/publishing-libraries-to-mavencentral-2021/
-ext["signing.keyId"] = ''
-ext["signing.password"] = ''
-ext["signing.secretKeyRingFile"] = ''
-ext["ossrhUsername"] = ''
-ext["ossrhPassword"] = ''
-ext["sonatypeStagingProfileId"] = ''
+//ext["signing.keyId"] = ''
+//ext["signing.password"] = ''
+//ext["signing.secretKeyRingFile"] = ''
+//ext["ossrhUsername"] = ''
+//ext["ossrhPassword"] = ''
+//ext["sonatypeStagingProfileId"] = ''
+//
+//def secretPropsFile = project.rootProject.file('local.properties')
+//if (secretPropsFile.exists()) {
+//    def p = new Properties()
+//    p.load(new FileInputStream(secretPropsFile))
+//    p.each { name, value ->
+//        ext[name] = value
+//    }
+//} else {
+//    ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
+//    ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
+//    ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
+//    ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
+//    ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
+//    ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+//}
 
-def secretPropsFile = project.rootProject.file('local.properties')
-if (secretPropsFile.exists()) {
-    def p = new Properties()
-    p.load(new FileInputStream(secretPropsFile))
-    p.each { name, value ->
-        ext[name] = value
+android {
+    resourcePrefix 'zxing_'
+    compileSdk project.androidTargetSdk
+    namespace 'com.google.zxing.client.android'
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res-orig', 'res']
+            assets.srcDirs = ['assets']
+        }
+        test.setRoot('test')
     }
-} else {
-    ext["signing.keyId"] = System.getenv('SIGNING_KEY_ID')
-    ext["signing.password"] = System.getenv('SIGNING_PASSWORD')
-    ext["signing.secretKeyRingFile"] = System.getenv('SIGNING_SECRET_KEY_RING_FILE')
-    ext["ossrhUsername"] = System.getenv('OSSRH_USERNAME')
-    ext["ossrhPassword"] = System.getenv('OSSRH_PASSWORD')
-    ext["sonatypeStagingProfileId"] = System.getenv('SONATYPE_STAGING_PROFILE_ID')
+
+    // This is bad practice - we should fix the warnings instead.
+//    lintOptions {
+//        // Android warns about the he and id locale folders. he -> iw is already handled with a
+//        // symlink. TODO: what about id?
+//        disable 'LocaleFolder'
+//    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+//    testOptions {
+//        // We test with primitives such as Rect, and rely on their default behaviour working.
+//        unitTests.returnDefaultValues = true
+//    }
+
+    defaultConfig {
+        minSdkVersion 19
+    }
+
+    buildTypes {
+//        debug {
+//            versionNameSuffix ".debug"
+////            resValue "string", "app_version", "${defaultConfig.versionName}${versionNameSuffix}"
+//        }
+        release {
+            resValue "string", "app_version", "${defaultConfig.versionName}"
+        }
+    }
 }
 
 dependencies {
@@ -41,58 +87,12 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:1.9.5'
 }
 
-android {
-    resourcePrefix 'zxing_'
-    compileSdk project.androidTargetSdk
-    namespace 'com.google.zxing.client.android'
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res-orig', 'res']
-            assets.srcDirs = ['assets']
-        }
-        test.setRoot('test')
-    }
-
-    // This is bad practice - we should fix the warnings instead.
-    lintOptions {
-        // Android warns about the he and id locale folders. he -> iw is already handled with a
-        // symlink. TODO: what about id?
-        disable 'LocaleFolder'
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    testOptions {
-        // We test with primitives such as Rect, and rely on their default behaviour working.
-        unitTests.returnDefaultValues = true
-    }
-
-    defaultConfig {
-        minSdkVersion 19
-    }
-
-    buildTypes {
-        debug {
-            versionNameSuffix ".debug"
-            resValue "string", "app_version", "${defaultConfig.versionName}${versionNameSuffix}"
-        }
-        release {
-            resValue "string", "app_version", "${defaultConfig.versionName}"
-        }
-    }
-}
-
-task sourceJar(type: Jar) {
+/*tasks.register('sourceJar', Jar) {
     archiveClassifier.set('sources')
     from android.sourceSets.main.java.srcDirs
-}
+}*/
 
-project.afterEvaluate {
+/*project.afterEvaluate {
     publishing {
         publications {
             maven(MavenPublication) {
@@ -159,8 +159,8 @@ project.afterEvaluate {
             }
         }
     }
-}
+}*/
 
-signing {
+/*signing {
     sign publishing.publications
-}
+}*/
