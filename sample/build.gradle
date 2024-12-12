@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk project.androidTargetSdk
+    compileSdk 34
     namespace 'example.zxing'
 
     defaultConfig {
         multiDexEnabled true
         minSdk 19
-        targetSdkVersion project.androidTargetSdk
+        targetSdk 34
         versionCode 411
         versionName "4.1.1"
     }

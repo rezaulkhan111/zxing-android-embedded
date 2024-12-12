@@ -3,14 +3,17 @@ plugins {
     id 'maven-publish'
 }
 
-ext.artifactId = 'zxing-android-embedded'
+//artifactId = 'zxing-android-embedded'
+//version = '4.3.0'
+//group = 'com.journeyapps'
 
 android {
-    compileSdk project.androidTargetSdk
+    compileSdk 34
     namespace 'com.google.zxing.client.android'
 
     defaultConfig {
-        minSdkVersion 19
+        minSdk 19
+        targetSdk 34
     }
 
     buildTypes {
@@ -57,7 +60,7 @@ afterEvaluate {
 //                from components.release
                 groupId = "com.journeyapps"
                 artifactId = "zxing-android-embedded"
-                version = "4.3.0"
+                version = "4.4.0"
             }
         }
     }

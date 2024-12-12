@@ -13,13 +13,13 @@ buildscript {
 subprojects {
     repositories {
         google()
-        mavenLocal()
+//        mavenLocal()
         mavenCentral()
     }
 
-    version = '4.3.0'
-    group = 'com.journeyapps'
+//    version = '4.3.0'
+//    group = 'com.journeyapps'
 
-    ext.androidTargetSdk = 34
-    ext.zxingCore = 'com.google.zxing:core:3.4.1'
+//    ext.androidTargetSdk = 34
+//    ext.zxingCore = 'com.google.zxing:core:3.4.1'
 }
