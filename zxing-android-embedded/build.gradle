@@ -3,10 +3,6 @@ plugins {
     id 'maven-publish'
 }
 
-//artifactId = 'zxing-android-embedded'
-//version = '4.3.0'
-//group = 'com.journeyapps'
-
 android {
     compileSdk 34
     namespace 'com.google.zxing.client.android'
