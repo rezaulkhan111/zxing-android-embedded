@@ -37,7 +37,8 @@ android {
 }
 
 dependencies {
-    api project.zxingCore
+//    api project.zxingCore
+    api 'com.google.zxing:core:3.4.1'
 //    implementation 'com.google.zxing:core:3.4.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.google.code.gson:gson:2.9.1'
@@ -47,4 +48,17 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.1'
     testImplementation 'org.mockito:mockito-core:1.9.5'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+//                from components.release
+                groupId = "com.journeyapps"
+                artifactId = "zxing-android-embedded"
+                version = "4.3.0"
+            }
+        }
+    }
 }
