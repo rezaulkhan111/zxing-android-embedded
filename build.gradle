@@ -10,10 +10,10 @@ buildscript {
     }
 }
 
-subprojects {
+allprojects {
     repositories {
         google()
-//        mavenLocal()
+        mavenLocal()
         mavenCentral()
     }
 
@@ -22,4 +22,8 @@ subprojects {
 
 //    ext.androidTargetSdk = 34
 //    ext.zxingCore = 'com.google.zxing:core:3.4.1'
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
