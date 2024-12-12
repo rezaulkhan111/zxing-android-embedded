@@ -18,7 +18,7 @@ import java.util.Map;
 
 /**
  * This contains the result of a barcode scan.
- *
+ * <p>
  * This class delegate all read-only fields of {@link com.google.zxing.Result},
  * and adds a bitmap with scanned barcode.
  */
@@ -105,10 +105,9 @@ public class BarcodeResult {
     }
 
     /**
-     *
      * @return Bitmap preview scale factor
      */
-    public int getBitmapScaleFactor(){
+    public int getBitmapScaleFactor() {
         return mScaleFactor;
     }
 
@@ -164,7 +163,6 @@ public class BarcodeResult {
     public String toString() {
         return mResult.getText();
     }
-
 
     public static List<ResultPoint> transformResultPoints(List<ResultPoint> resultPoints, SourceData sourceData) {
         List<ResultPoint> scaledPoints = new ArrayList<>(resultPoints.size());

@@ -62,7 +62,6 @@ public class BarcodeScanBSF extends BottomSheetDialogFragment {
     }
 
     void initView() {
-
     }
 }
 

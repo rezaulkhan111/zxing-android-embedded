@@ -183,8 +183,8 @@ public class ViewfinderView extends View {
                 float radius = POINT_SIZE / 2.0f;
                 for (final ResultPoint point : lastPossibleResultPoints) {
                     canvas.drawCircle(
-                             (int) (point.getX() * scaleX),
-                             (int) (point.getY() * scaleY),
+                            (int) (point.getX() * scaleX),
+                            (int) (point.getY() * scaleY),
                             radius, paint
                     );
                 }

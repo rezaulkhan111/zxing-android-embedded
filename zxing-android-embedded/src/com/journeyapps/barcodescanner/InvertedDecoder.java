@@ -23,14 +23,13 @@ public class InvertedDecoder extends Decoder {
 
     /**
      * Given an image source, convert to a binary bitmap.
-     *
+     * <p>
      * Override this to use a custom binarizer.
      *
      * @param source the image source
      * @return a BinaryBitmap
      */
     protected BinaryBitmap toBitmap(LuminanceSource source) {
-
         return new BinaryBitmap(new HybridBinarizer(source.invert()));
     }
 }

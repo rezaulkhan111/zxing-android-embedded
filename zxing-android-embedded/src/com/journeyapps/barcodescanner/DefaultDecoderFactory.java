@@ -63,10 +63,6 @@ public class DefaultDecoderFactory implements DecoderFactory {
                 return new MixedDecoder(reader);
             default:
                 return new Decoder(reader);
-
-
         }
-
-
     }
 }

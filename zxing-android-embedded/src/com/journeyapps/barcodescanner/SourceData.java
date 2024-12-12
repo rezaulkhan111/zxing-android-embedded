@@ -17,13 +17,19 @@ import java.io.ByteArrayOutputStream;
 public class SourceData {
     private RawImageData data;
 
-    /** The format of the image data. ImageFormat.NV21 and ImageFormat.YUY2 are supported. */
+    /**
+     * The format of the image data. ImageFormat.NV21 and ImageFormat.YUY2 are supported.
+     */
     private int imageFormat;
 
-    /** Rotation in degrees (0, 90, 180 or 270). This is camera rotation relative to display rotation. */
+    /**
+     * Rotation in degrees (0, 90, 180 or 270). This is camera rotation relative to display rotation.
+     */
     private int rotation;
 
-    /** Crop rectangle, in display orientation. */
+    /**
+     * Crop rectangle, in display orientation.
+     */
     private Rect cropRect;
 
     /**
@@ -34,12 +40,11 @@ public class SourceData {
     private boolean previewMirrored;
 
     /**
-     *
-     * @param data the image data
-     * @param dataWidth width of the data
-     * @param dataHeight height of the data
+     * @param data        the image data
+     * @param dataWidth   width of the data
+     * @param dataHeight  height of the data
      * @param imageFormat ImageFormat.NV21 or ImageFormat.YUY2
-     * @param rotation camera rotation relative to display rotation, in degrees (0, 90, 180 or 270).
+     * @param rotation    camera rotation relative to display rotation, in degrees (0, 90, 180 or 270).
      */
     public SourceData(byte[] data, int dataWidth, int dataHeight, int imageFormat, int rotation) {
         this.data = new RawImageData(data, dataWidth, dataHeight);
@@ -84,7 +89,6 @@ public class SourceData {
     }
 
     /**
-     *
      * @return width of the data
      */
     public int getDataWidth() {
@@ -92,7 +96,6 @@ public class SourceData {
     }
 
     /**
-     *
      * @return height of the data
      */
     public int getDataHeight() {
@@ -109,7 +112,6 @@ public class SourceData {
     }
 
     /**
-     *
      * @return true if the preview image is rotated orthogonal to the display
      */
     public boolean isRotated() {
@@ -171,8 +173,6 @@ public class SourceData {
             imageMatrix.postRotate(rotation);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), imageMatrix, false);
         }
-
         return bitmap;
     }
-
 }

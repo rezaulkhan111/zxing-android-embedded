@@ -39,5 +39,4 @@ public class MixedDecoder extends Decoder {
             return new BinaryBitmap(new HybridBinarizer(source));
         }
     }
-
 }

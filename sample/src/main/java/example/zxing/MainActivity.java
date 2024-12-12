@@ -65,106 +65,106 @@ public class MainActivity extends AppCompatActivity {
         barcodeLauncher.launch(options);
     }
 
-    public void scanBarcodeInverted(View view) {
-        ScanOptions options = new ScanOptions();
-        options.addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.INVERTED_SCAN);
-        barcodeLauncher.launch(options);
-    }
+//    public void scanBarcodeInverted(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.INVERTED_SCAN);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanMixedBarcodes(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.MIXED_SCAN);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanBarcodeCustomLayout(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.setCaptureActivity(AnyOrientationCaptureActivity.class);
+//        options.setDesiredBarcodeFormats(ScanOptions.ONE_D_CODE_TYPES);
+//        options.setPrompt("Scan something");
+//        options.setOrientationLocked(false);
+//        options.setBeepEnabled(false);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanPDF417(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.setDesiredBarcodeFormats(ScanOptions.PDF_417);
+//        options.setPrompt("Scan something");
+//        options.setOrientationLocked(false);
+//        options.setBeepEnabled(false);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//
+//    public void scanBarcodeFrontCamera(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.setCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanContinuous(View view) {
+//        Intent intent = new Intent(this, ContinuousCaptureActivity.class);
+//        startActivity(intent);
+//    }
+//
+//    public void scanToolbar(View view) {
+//        ScanOptions options = new ScanOptions().setCaptureActivity(ToolbarCaptureActivity.class);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanCustomScanner(View view) {
+//        ScanOptions options = new ScanOptions().setOrientationLocked(false).setCaptureActivity(CustomScannerActivity.class);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanMarginScanner(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.setOrientationLocked(false);
+//        options.setCaptureActivity(SmallCaptureActivity.class);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void scanWithTimeout(View view) {
+//        ScanOptions options = new ScanOptions();
+//        options.setTimeout(8000);
+//        barcodeLauncher.launch(options);
+//    }
+//
+//    public void tabs(View view) {
+//        Intent intent = new Intent(this, TabbedScanning.class);
+//        startActivity(intent);
+//    }
 
-    public void scanMixedBarcodes(View view) {
-        ScanOptions options = new ScanOptions();
-        options.addExtra(Intents.Scan.SCAN_TYPE, Intents.Scan.MIXED_SCAN);
-        barcodeLauncher.launch(options);
-    }
-
-    public void scanBarcodeCustomLayout(View view) {
-        ScanOptions options = new ScanOptions();
-        options.setCaptureActivity(AnyOrientationCaptureActivity.class);
-        options.setDesiredBarcodeFormats(ScanOptions.ONE_D_CODE_TYPES);
-        options.setPrompt("Scan something");
-        options.setOrientationLocked(false);
-        options.setBeepEnabled(false);
-        barcodeLauncher.launch(options);
-    }
-
-    public void scanPDF417(View view) {
-        ScanOptions options = new ScanOptions();
-        options.setDesiredBarcodeFormats(ScanOptions.PDF_417);
-        options.setPrompt("Scan something");
-        options.setOrientationLocked(false);
-        options.setBeepEnabled(false);
-        barcodeLauncher.launch(options);
-    }
-
-
-    public void scanBarcodeFrontCamera(View view) {
-        ScanOptions options = new ScanOptions();
-        options.setCameraId(Camera.CameraInfo.CAMERA_FACING_FRONT);
-        barcodeLauncher.launch(options);
-    }
-
-    public void scanContinuous(View view) {
-        Intent intent = new Intent(this, ContinuousCaptureActivity.class);
-        startActivity(intent);
-    }
-
-    public void scanToolbar(View view) {
-        ScanOptions options = new ScanOptions().setCaptureActivity(ToolbarCaptureActivity.class);
-        barcodeLauncher.launch(options);
-    }
-
-    public void scanCustomScanner(View view) {
-        ScanOptions options = new ScanOptions().setOrientationLocked(false).setCaptureActivity(CustomScannerActivity.class);
-        barcodeLauncher.launch(options);
-    }
-
-    public void scanMarginScanner(View view) {
-        ScanOptions options = new ScanOptions();
-        options.setOrientationLocked(false);
-        options.setCaptureActivity(SmallCaptureActivity.class);
-        barcodeLauncher.launch(options);
-    }
-
-    public void scanWithTimeout(View view) {
-        ScanOptions options = new ScanOptions();
-        options.setTimeout(8000);
-        barcodeLauncher.launch(options);
-    }
-
-    public void tabs(View view) {
-        Intent intent = new Intent(this, TabbedScanning.class);
-        startActivity(intent);
-    }
-
-    public void about(View view) {
-        new LibsBuilder().start(this);
-    }
+//    public void about(View view) {
+//        new LibsBuilder().start(this);
+//    }
 
     /**
      * Sample of scanning from a Fragment
      */
-    public static class ScanFragment extends Fragment {
-        private final ActivityResultLauncher<ScanOptions> fragmentLauncher = registerForActivityResult(new ScanContract(), result -> {
-            if (result.getContents() == null) {
-                Toast.makeText(getContext(), "Cancelled from fragment", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getContext(), "Scanned from fragment: " + result.getContents(), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        public ScanFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_scan, container, false);
-            Button scan = view.findViewById(R.id.scan_from_fragment);
-            scan.setOnClickListener(v -> scanFromFragment());
-            return view;
-        }
-
-        public void scanFromFragment() {
-            fragmentLauncher.launch(new ScanOptions());
-        }
-    }
+//    public static class ScanFragment extends Fragment {
+//        private final ActivityResultLauncher<ScanOptions> fragmentLauncher = registerForActivityResult(new ScanContract(), result -> {
+//            if (result.getContents() == null) {
+//                Toast.makeText(getContext(), "Cancelled from fragment", Toast.LENGTH_LONG).show();
+//            } else {
+//                Toast.makeText(getContext(), "Scanned from fragment: " + result.getContents(), Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//        public ScanFragment() {
+//        }
+//
+//        @Override
+//        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//            View view = inflater.inflate(R.layout.fragment_scan, container, false);
+//            Button scan = view.findViewById(R.id.scan_from_fragment);
+//            scan.setOnClickListener(v -> scanFromFragment());
+//            return view;
+//        }
+//
+//        public void scanFromFragment() {
+//            fragmentLauncher.launch(new ScanOptions());
+//        }
+//    }
 }
