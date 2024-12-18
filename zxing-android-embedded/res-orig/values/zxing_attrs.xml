@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <declare-styleable name="zxing_view">
         <attr name="zxing_scanner_layout" format="reference" />
     </declare-styleable>
