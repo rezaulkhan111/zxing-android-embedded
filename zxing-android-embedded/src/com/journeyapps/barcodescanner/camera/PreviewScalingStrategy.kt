@@ -1,85 +1,87 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import android.graphics.Rect;
-import android.util.Log;
+import android.graphics.Rect
+import android.util.Log
+import com.journeyapps.barcodescanner.Size
+import java.util.Collections
 
-import com.journeyapps.barcodescanner.Size;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-public abstract class PreviewScalingStrategy {
-    private static final String TAG = PreviewScalingStrategy.class.getSimpleName();
-
+abstract class PreviewScalingStrategy {
     /**
      * Choose the best preview size, based on our viewfinder size.
-     * <p>
+     *
+     *
      * The default implementation lets subclasses calculate a score for each size, the picks the one
      * with the best score.
-     * <p>
+     *
+     *
      * The sizes list may be reordered by this call.
      *
      * @param sizes   supported preview sizes, containing at least one size. Sizes are in natural camera orientation.
      * @param desired The desired viewfinder size, in the same orientation
      * @return the best preview size, never null
      */
-    public Size getBestPreviewSize(List<Size> sizes, final Size desired) {
+    open fun getBestPreviewSize(sizes: List<Size?>, desired: Size): Size? {
         // Sample of supported preview sizes:
         // http://www.kirill.org/ar/ar.php
 
-        List<Size> ordered = getBestPreviewOrder(sizes, desired);
+        val ordered = getBestPreviewOrder(sizes, desired)
 
-        Log.i(TAG, "Viewfinder size: " + desired);
-        Log.i(TAG, "Preview in order of preference: " + ordered);
+        Log.i(TAG, "Viewfinder size: $desired")
+        Log.i(
+            TAG,
+            "Preview in order of preference: $ordered"
+        )
 
-        return ordered.get(0);
+        return ordered[0]
     }
 
     /**
      * Sort previews based on their suitability.
-     * <p>
-     * In most cases, {@link #getBestPreviewSize(List, Size)} should be used instead.
-     * <p>
+     *
+     *
+     * In most cases, [.getBestPreviewSize] should be used instead.
+     *
+     *
      * The sizes list may be reordered by this call.
      *
      * @param sizes   supported preview sizes, containing at least one size. Sizes are in natural camera orientation.
      * @param desired The desired viewfinder size, in the same orientation
      * @return an ordered list, best preview first
      */
-    public List<Size> getBestPreviewOrder(List<Size> sizes, final Size desired) {
+    fun getBestPreviewOrder(sizes: List<Size?>, desired: Size?): List<Size?> {
         if (desired == null) {
-            return sizes;
+            return sizes
         }
 
-        Collections.sort(sizes, new Comparator<Size>() {
-            @Override
-            public int compare(Size a, Size b) {
-                float aScore = getScore(a, desired);
-                float bScore = getScore(b, desired);
-                // Bigger score first
-                return Float.compare(bScore, aScore);
-            }
-        });
+        Collections.sort(
+            sizes
+        ) { a, b ->
+            val aScore = getScore(a, desired)
+            val bScore = getScore(b, desired)
+            // Bigger score first
+            java.lang.Float.compare(bScore, aScore)
+        }
 
 
-        return sizes;
+        return sizes
     }
 
     /**
      * Get a score for our size.
-     * <p>
+     *
+     *
      * 1.0 is perfect (exact match).
      * 0.0 means we can't use it at all.
-     * <p>
+     *
+     *
      * Subclasses should override this.
      *
      * @param size    the camera preview size (that can be scaled)
      * @param desired the viewfinder size
      * @return the score
      */
-    protected float getScore(Size size, Size desired) {
-        return 0.5f;
+    protected open fun getScore(size: Size?, desired: Size?): Float {
+        return 0.5f
     }
 
     /**
@@ -89,5 +91,9 @@ public abstract class PreviewScalingStrategy {
      * @param viewfinderSize the size of the viewfinder (display), in current display orientation
      * @return a rect placing the preview, relative to the viewfinder
      */
-    public abstract Rect scalePreview(Size previewSize, Size viewfinderSize);
+    abstract fun scalePreview(previewSize: Size?, viewfinderSize: Size?): Rect?
+
+    companion object {
+        private val TAG: String = PreviewScalingStrategy::class.java.simpleName
+    }
 }

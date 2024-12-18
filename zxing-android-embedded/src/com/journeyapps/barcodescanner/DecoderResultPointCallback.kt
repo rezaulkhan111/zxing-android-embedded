@@ -1,33 +1,23 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import com.google.zxing.ResultPoint;
-import com.google.zxing.ResultPointCallback;
+import com.google.zxing.ResultPoint
+import com.google.zxing.ResultPointCallback
 
 /**
  * ResultPointCallback delegating the ResultPoints to a decoder.
  */
-public class DecoderResultPointCallback implements ResultPointCallback {
-    private Decoder decoder;
+class DecoderResultPointCallback : ResultPointCallback {
+    var decoder: Decoder? = null
 
-    public DecoderResultPointCallback(Decoder decoder) {
-        this.decoder = decoder;
+    constructor(decoder: Decoder?) {
+        this.decoder = decoder
     }
 
-    public DecoderResultPointCallback() {
-    }
+    constructor()
 
-    public Decoder getDecoder() {
-        return decoder;
-    }
-
-    public void setDecoder(Decoder decoder) {
-        this.decoder = decoder;
-    }
-
-    @Override
-    public void foundPossibleResultPoint(ResultPoint point) {
+    override fun foundPossibleResultPoint(point: ResultPoint) {
         if (decoder != null) {
-            decoder.foundPossibleResultPoint(point);
+            decoder!!.foundPossibleResultPoint(point)
         }
     }
 }

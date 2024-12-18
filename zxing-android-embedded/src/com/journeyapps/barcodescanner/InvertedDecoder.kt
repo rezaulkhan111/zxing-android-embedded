@@ -1,35 +1,33 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.Reader;
-import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.LuminanceSource
+import com.google.zxing.Reader
+import com.google.zxing.common.HybridBinarizer
 
 /**
  * Created by leighmd on 11/2/16.
  */
-public class InvertedDecoder extends Decoder {
-
-    /**
-     * Create a new Decoder with the specified Reader.
-     * <p/>
-     * It is recommended to use an instance of MultiFormatReader in most cases.
-     *
-     * @param reader the reader
-     */
-    public InvertedDecoder(Reader reader) {
-        super(reader);
-    }
-
+class InvertedDecoder
+/**
+ * Create a new Decoder with the specified Reader.
+ *
+ *
+ * It is recommended to use an instance of MultiFormatReader in most cases.
+ *
+ * @param reader the reader
+ */
+    (reader: Reader) : Decoder(reader) {
     /**
      * Given an image source, convert to a binary bitmap.
-     * <p>
+     *
+     *
      * Override this to use a custom binarizer.
      *
      * @param source the image source
      * @return a BinaryBitmap
      */
-    protected BinaryBitmap toBitmap(LuminanceSource source) {
-        return new BinaryBitmap(new HybridBinarizer(source.invert()));
+    override fun toBitmap(source: LuminanceSource): BinaryBitmap? {
+        return BinaryBitmap(HybridBinarizer(source.invert()))
     }
 }

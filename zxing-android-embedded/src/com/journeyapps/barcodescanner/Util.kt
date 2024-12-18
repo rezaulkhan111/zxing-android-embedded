@@ -1,16 +1,14 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.os.Looper;
+import android.os.Looper
 
 /**
  *
  */
-public class Util {
-    public static void validateMainThread() {
-        if (Looper.getMainLooper() != Looper.myLooper()) {
-            throw new IllegalStateException("Must be called from the main thread.");
-        }
+object Util {
+    fun validateMainThread() {
+        check(Looper.getMainLooper() == Looper.myLooper()) { "Must be called from the main thread." }
     }
 
-    public static String dataTransfer_Key = "DataTransfer";
+    var dataTransfer_Key: String = "DataTransfer"
 }

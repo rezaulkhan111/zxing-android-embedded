@@ -1,58 +1,40 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import android.graphics.Rect;
-
-import com.journeyapps.barcodescanner.Size;
-
-import java.util.List;
+import android.graphics.Rect
+import com.journeyapps.barcodescanner.Size
+import com.journeyapps.barcodescanner.camera.DisplayConfiguration
 
 /**
  *
  */
-public class DisplayConfiguration {
-    private static final String TAG = DisplayConfiguration.class.getSimpleName();
+class DisplayConfiguration {
+    var viewfinderSize: Size? = null
+        private set
+    var rotation: Int
+        private set
+    private val center = false
+    var previewScalingStrategy: PreviewScalingStrategy = FitCenterStrategy()
 
-    private Size viewfinderSize;
-    private int rotation;
-    private boolean center = false;
-    private PreviewScalingStrategy previewScalingStrategy = new FitCenterStrategy();
-
-    public DisplayConfiguration(int rotation) {
-        this.rotation = rotation;
+    constructor(rotation: Int) {
+        this.rotation = rotation
     }
 
-    public DisplayConfiguration(int rotation, Size viewfinderSize) {
-        this.rotation = rotation;
-        this.viewfinderSize = viewfinderSize;
-    }
-
-    public int getRotation() {
-        return rotation;
-    }
-
-    public Size getViewfinderSize() {
-        return viewfinderSize;
-    }
-
-    public PreviewScalingStrategy getPreviewScalingStrategy() {
-        return previewScalingStrategy;
-    }
-
-    public void setPreviewScalingStrategy(PreviewScalingStrategy previewScalingStrategy) {
-        this.previewScalingStrategy = previewScalingStrategy;
+    constructor(rotation: Int, viewfinderSize: Size?) {
+        this.rotation = rotation
+        this.viewfinderSize = viewfinderSize
     }
 
     /**
      * @param rotate true to rotate the preview size
      * @return desired preview size in natural camera orientation.
      */
-    public Size getDesiredPreviewSize(boolean rotate) {
-        if (viewfinderSize == null) {
-            return null;
+    fun getDesiredPreviewSize(rotate: Boolean): Size? {
+        return if (viewfinderSize == null) {
+            null
         } else if (rotate) {
-            return viewfinderSize.rotate();
+            viewfinderSize!!.rotate()
         } else {
-            return viewfinderSize;
+            viewfinderSize
         }
     }
 
@@ -74,14 +56,14 @@ public class DisplayConfiguration {
      * @param isRotated true if the camera is rotated perpendicular to the current display orientation
      * @return the best preview size, never null
      */
-    public Size getBestPreviewSize(List<Size> sizes, boolean isRotated) {
+    fun getBestPreviewSize(sizes: List<Size?>?, isRotated: Boolean): Size {
         // Sample of supported preview sizes:
         // http://www.kirill.org/ar/ar.php
 
 
-        final Size desired = getDesiredPreviewSize(isRotated);
+        val desired = getDesiredPreviewSize(isRotated)
 
-        return previewScalingStrategy.getBestPreviewSize(sizes, desired);
+        return previewScalingStrategy.getBestPreviewSize(sizes, desired)
     }
 
     /**
@@ -92,7 +74,11 @@ public class DisplayConfiguration {
      * @param previewSize the size of the preview (camera), in current display orientation
      * @return a rect placing the preview
      */
-    public Rect scalePreview(Size previewSize) {
-        return previewScalingStrategy.scalePreview(previewSize, viewfinderSize);
+    fun scalePreview(previewSize: Size?): Rect {
+        return previewScalingStrategy.scalePreview(previewSize, viewfinderSize)
+    }
+
+    companion object {
+        private val TAG: String = DisplayConfiguration::class.java.simpleName
     }
 }

@@ -1,19 +1,17 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import com.google.zxing.ResultPoint;
-
-import java.util.List;
+import com.google.zxing.ResultPoint
 
 /**
  * Callback that is notified when a barcode is scanned.
  */
-public interface BarcodeCallback {
+interface BarcodeCallback {
     /**
      * Barcode was successfully scanned.
      *
      * @param result the result
      */
-    void barcodeResult(BarcodeResult result);
+    fun barcodeResult(result: BarcodeResult?)
 
     /**
      * ResultPoints are detected. This may be called whether or not the scanning was successful.
@@ -26,6 +24,6 @@ public interface BarcodeCallback {
      *
      * @param resultPoints points potentially identifying a barcode
      */
-    default void possibleResultPoints(List<ResultPoint> resultPoints) {
+    fun possibleResultPoints(resultPoints: List<ResultPoint>?) {
     }
 }

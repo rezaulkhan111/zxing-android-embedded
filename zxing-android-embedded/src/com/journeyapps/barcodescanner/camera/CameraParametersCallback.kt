@@ -1,16 +1,16 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import android.hardware.Camera;
+import android.hardware.Camera
 
 /**
- * Callback for {@link Camera.Parameters}.
+ * Callback for [Camera.Parameters].
  */
-public interface CameraParametersCallback {
+interface CameraParametersCallback {
     /**
      * Changes the settings for Camera.
      *
-     * @param parameters {@link Camera.Parameters}.
-     * @return {@link Camera.Parameters} with arguments.
+     * @param parameters [Camera.Parameters].
+     * @return [Camera.Parameters] with arguments.
      */
-    Camera.Parameters changeCameraParameters(Camera.Parameters parameters);
+    fun changeCameraParameters(parameters: Camera.Parameters?): Camera.Parameters?
 }

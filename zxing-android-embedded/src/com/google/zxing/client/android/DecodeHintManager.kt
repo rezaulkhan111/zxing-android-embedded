@@ -13,224 +13,219 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.zxing.client.android
 
-package com.google.zxing.client.android;
-
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.util.Log;
-
-import com.google.zxing.DecodeHintType;
-
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import com.google.zxing.DecodeHintType
+import java.util.EnumMap
+import java.util.regex.Pattern
 
 /**
  * @author Lachezar Dobrev
  */
-public final class DecodeHintManager {
-
-    private static final String TAG = DecodeHintManager.class.getSimpleName();
+object DecodeHintManager {
+    private val TAG: String = DecodeHintManager::class.java.simpleName
 
     // This pattern is used in decoding integer arrays.
-    private static final Pattern COMMA = Pattern.compile(",");
-
-    private DecodeHintManager() {
-    }
+    private val COMMA: Pattern = Pattern.compile(",")
 
     /**
-     * <p>Split a query string into a list of name-value pairs.</p>
      *
-     * <p>This is an alternative to the {@link Uri#getQueryParameterNames()} and
-     * {@link Uri#getQueryParameters(String)}, which are quirky and not suitable
-     * for exist-only Uri parameters.</p>
+     * Split a query string into a list of name-value pairs.
      *
-     * <p>This method ignores multiple parameters with the same name and returns the
+     *
+     * This is an alternative to the [Uri.getQueryParameterNames] and
+     * [Uri.getQueryParameters], which are quirky and not suitable
+     * for exist-only Uri parameters.
+     *
+     *
+     * This method ignores multiple parameters with the same name and returns the
      * first one only. This is technically incorrect, but should be acceptable due
-     * to the method of processing Hints: no multiple values for a hint.</p>
+     * to the method of processing Hints: no multiple values for a hint.
      *
      * @param query query to split
      * @return name-value pairs
      */
-    private static Map<String, String> splitQuery(String query) {
-        Map<String, String> map = new HashMap<>();
-        int pos = 0;
-        while (pos < query.length()) {
-            if (query.charAt(pos) == '&') {
+    private fun splitQuery(query: String): Map<String, String> {
+        val map: MutableMap<String, String> = HashMap()
+        var pos = 0
+        while (pos < query.length) {
+            if (query[pos] == '&') {
                 // Skip consecutive ampersand separators.
-                pos++;
-                continue;
+                pos++
+                continue
             }
-            int amp = query.indexOf('&', pos);
-            int equ = query.indexOf('=', pos);
+            val amp = query.indexOf('&', pos)
+            val equ = query.indexOf('=', pos)
             if (amp < 0) {
                 // This is the last element in the query, no more ampersand elements.
-                String name;
-                String text;
+                var name: String
+                var text: String
                 if (equ < 0) {
                     // No equal sign
-                    name = query.substring(pos);
-                    name = name.replace('+', ' '); // Preemptively decode +
-                    name = Uri.decode(name);
-                    text = "";
+                    name = query.substring(pos)
+                    name = name.replace('+', ' ') // Preemptively decode +
+                    name = Uri.decode(name)
+                    text = ""
                 } else {
                     // Split name and text.
-                    name = query.substring(pos, equ);
-                    name = name.replace('+', ' '); // Preemptively decode +
-                    name = Uri.decode(name);
-                    text = query.substring(equ + 1);
-                    text = text.replace('+', ' '); // Preemptively decode +
-                    text = Uri.decode(text);
+                    name = query.substring(pos, equ)
+                    name = name.replace('+', ' ') // Preemptively decode +
+                    name = Uri.decode(name)
+                    text = query.substring(equ + 1)
+                    text = text.replace('+', ' ') // Preemptively decode +
+                    text = Uri.decode(text)
                 }
                 if (!map.containsKey(name)) {
-                    map.put(name, text);
+                    map[name] = text
                 }
-                break;
+                break
             }
             if (equ < 0 || equ > amp) {
                 // No equal sign until the &: this is a simple parameter with no value.
-                String name = query.substring(pos, amp);
-                name = name.replace('+', ' '); // Preemptively decode +
-                name = Uri.decode(name);
+                var name = query.substring(pos, amp)
+                name = name.replace('+', ' ') // Preemptively decode +
+                name = Uri.decode(name)
                 if (!map.containsKey(name)) {
-                    map.put(name, "");
+                    map[name] = ""
                 }
-                pos = amp + 1;
-                continue;
+                pos = amp + 1
+                continue
             }
-            String name = query.substring(pos, equ);
-            name = name.replace('+', ' '); // Preemptively decode +
-            name = Uri.decode(name);
-            String text = query.substring(equ + 1, amp);
-            text = text.replace('+', ' '); // Preemptively decode +
-            text = Uri.decode(text);
+            var name = query.substring(pos, equ)
+            name = name.replace('+', ' ') // Preemptively decode +
+            name = Uri.decode(name)
+            var text = query.substring(equ + 1, amp)
+            text = text.replace('+', ' ') // Preemptively decode +
+            text = Uri.decode(text)
             if (!map.containsKey(name)) {
-                map.put(name, text);
+                map[name] = text
             }
-            pos = amp + 1;
+            pos = amp + 1
         }
-        return map;
+        return map
     }
 
-    static Map<DecodeHintType, ?> parseDecodeHints(Uri inputUri) {
-        String query = inputUri.getEncodedQuery();
+    fun parseDecodeHints(inputUri: Uri): Map<DecodeHintType, *>? {
+        val query = inputUri.encodedQuery
         if (query == null || query.isEmpty()) {
-            return null;
+            return null
         }
 
         // Extract parameters
-        Map<String, String> parameters = splitQuery(query);
+        val parameters = splitQuery(query)
 
-        Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
+        val hints: MutableMap<DecodeHintType, Any> = EnumMap(
+            DecodeHintType::class.java
+        )
 
-        for (DecodeHintType hintType : DecodeHintType.values()) {
-
-            if (hintType == DecodeHintType.CHARACTER_SET ||
-                    hintType == DecodeHintType.NEED_RESULT_POINT_CALLBACK ||
-                    hintType == DecodeHintType.POSSIBLE_FORMATS) {
-                continue; // This hint is specified in another way
+        for (hintType in DecodeHintType.entries) {
+            if (hintType == DecodeHintType.CHARACTER_SET || hintType == DecodeHintType.NEED_RESULT_POINT_CALLBACK || hintType == DecodeHintType.POSSIBLE_FORMATS) {
+                continue  // This hint is specified in another way
             }
 
-            String parameterName = hintType.name();
-            String parameterText = parameters.get(parameterName);
-            if (parameterText == null) {
-                continue;
-            }
-            if (hintType.getValueType().equals(Object.class)) {
+            val parameterName = hintType.name
+            var parameterText = parameters[parameterName] ?: continue
+            if (hintType.valueType == Any::class.java) {
                 // This is an unspecified type of hint content. Use the value as is.
                 // TODO: Can we make a different assumption on this?
-                hints.put(hintType, parameterText);
-                continue;
+                hints[hintType] = parameterText
+                continue
             }
-            if (hintType.getValueType().equals(Void.class)) {
+            if (hintType.valueType == Void::class.java) {
                 // Void hints are just flags: use the constant specified by DecodeHintType
-                hints.put(hintType, Boolean.TRUE);
-                continue;
+                hints[hintType] = java.lang.Boolean.TRUE
+                continue
             }
-            if (hintType.getValueType().equals(String.class)) {
+            if (hintType.valueType == String::class.java) {
                 // A string hint: use the decoded value.
-                hints.put(hintType, parameterText);
-                continue;
+                hints[hintType] = parameterText
+                continue
             }
-            if (hintType.getValueType().equals(Boolean.class)) {
+            if (hintType.valueType == Boolean::class.java) {
                 // A boolean hint: a few values for false, everything else is true.
                 // An empty parameter is simply a flag-style parameter, assuming true
                 if (parameterText.isEmpty()) {
-                    hints.put(hintType, Boolean.TRUE);
-                } else if ("0".equals(parameterText) ||
-                        "false".equalsIgnoreCase(parameterText) ||
-                        "no".equalsIgnoreCase(parameterText)) {
-                    hints.put(hintType, Boolean.FALSE);
+                    hints[hintType] = java.lang.Boolean.TRUE
+                } else if ("0" == parameterText ||
+                    "false".equals(parameterText, ignoreCase = true) ||
+                    "no".equals(parameterText, ignoreCase = true)
+                ) {
+                    hints[hintType] = java.lang.Boolean.FALSE
                 } else {
-                    hints.put(hintType, Boolean.TRUE);
+                    hints[hintType] = java.lang.Boolean.TRUE
                 }
 
-                continue;
+                continue
             }
-            if (hintType.getValueType().equals(int[].class)) {
+            if (hintType.valueType == IntArray::class.java) {
                 // An integer array. Used to specify valid lengths.
                 // Strip a trailing comma as in Java style array initialisers.
-                if (!parameterText.isEmpty() && parameterText.charAt(parameterText.length() - 1) == ',') {
-                    parameterText = parameterText.substring(0, parameterText.length() - 1);
+                if (!parameterText.isEmpty() && parameterText[parameterText.length - 1] == ',') {
+                    parameterText = parameterText.substring(0, parameterText.length - 1)
                 }
-                String[] values = COMMA.split(parameterText);
-                int[] array = new int[values.length];
-                for (int i = 0; i < values.length; i++) {
+                val values = COMMA.split(parameterText)
+                var array: IntArray? = IntArray(values.size)
+                for (i in values.indices) {
                     try {
-                        array[i] = Integer.parseInt(values[i]);
-                    } catch (NumberFormatException ignored) {
-                        Log.w(TAG, "Skipping array of integers hint " + hintType + " due to invalid numeric value: '" + values[i] + '\'');
-                        array = null;
-                        break;
+                        array!![i] = values[i].toInt()
+                    } catch (ignored: NumberFormatException) {
+                        Log.w(
+                            TAG,
+                            "Skipping array of integers hint " + hintType + " due to invalid numeric value: '" + values[i] + '\''
+                        )
+                        array = null
+                        break
                     }
                 }
                 if (array != null) {
-                    hints.put(hintType, array);
+                    hints[hintType] = array
                 }
-                continue;
+                continue
             }
-            Log.w(TAG, "Unsupported hint type '" + hintType + "' of type " + hintType.getValueType());
+            Log.w(TAG, "Unsupported hint type '" + hintType + "' of type " + hintType.valueType)
         }
 
-        Log.i(TAG, "Hints from the URI: " + hints);
-        return hints;
+        Log.i(TAG, "Hints from the URI: $hints")
+        return hints
     }
 
-    public static Map<DecodeHintType, Object> parseDecodeHints(Intent intent) {
-        Bundle extras = intent.getExtras();
-        if (extras == null || extras.isEmpty()) {
-            return null;
+    fun parseDecodeHints(intent: Intent): Map<DecodeHintType, Any?>? {
+        val extras = intent.extras
+        if (extras == null || extras.isEmpty) {
+            return null
         }
-        Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
+        val hints: MutableMap<DecodeHintType, Any?> = EnumMap(
+            DecodeHintType::class.java
+        )
 
-        for (DecodeHintType hintType : DecodeHintType.values()) {
-
-            if (hintType == DecodeHintType.CHARACTER_SET ||
-                    hintType == DecodeHintType.NEED_RESULT_POINT_CALLBACK ||
-                    hintType == DecodeHintType.POSSIBLE_FORMATS) {
-                continue; // This hint is specified in another way
+        for (hintType in DecodeHintType.entries) {
+            if (hintType == DecodeHintType.CHARACTER_SET || hintType == DecodeHintType.NEED_RESULT_POINT_CALLBACK || hintType == DecodeHintType.POSSIBLE_FORMATS) {
+                continue  // This hint is specified in another way
             }
 
-            String hintName = hintType.name();
+            val hintName = hintType.name
             if (extras.containsKey(hintName)) {
-                if (hintType.getValueType().equals(Void.class)) {
+                if (hintType.valueType == Void::class.java) {
                     // Void hints are just flags: use the constant specified by the DecodeHintType
-                    hints.put(hintType, Boolean.TRUE);
+                    hints[hintType] = java.lang.Boolean.TRUE
                 } else {
-                    Object hintData = extras.get(hintName);
-                    if (hintType.getValueType().isInstance(hintData)) {
-                        hints.put(hintType, hintData);
+                    val hintData = extras[hintName]
+                    if (hintType.valueType.isInstance(hintData)) {
+                        hints[hintType] = hintData
                     } else {
-                        Log.w(TAG, "Ignoring hint " + hintType + " because it is not assignable from " + hintData);
+                        Log.w(
+                            TAG,
+                            "Ignoring hint $hintType because it is not assignable from $hintData"
+                        )
                     }
                 }
             }
         }
 
-        Log.i(TAG, "Hints from the Intent: " + hints);
-        return hints;
+        Log.i(TAG, "Hints from the Intent: $hints")
+        return hints
     }
 }

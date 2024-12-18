@@ -13,74 +13,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.zxing.client.android.camera.open
 
-package com.google.zxing.client.android.camera.open;
+import android.hardware.Camera
+import android.hardware.Camera.CameraInfo
+import android.util.Log
 
-import android.hardware.Camera;
-import android.util.Log;
-
-public final class OpenCameraInterface {
-
-    private static final String TAG = OpenCameraInterface.class.getName();
-
-    private OpenCameraInterface() {
-    }
+object OpenCameraInterface {
+    private val TAG: String = OpenCameraInterface::class.java.name
 
     /**
-     * For {@link #open(int)}, means no preference for which camera to open.
+     * For [.open], means no preference for which camera to open.
      */
-    public static final int NO_REQUESTED_CAMERA = -1;
+    const val NO_REQUESTED_CAMERA: Int = -1
 
-    public static int getCameraId(int requestedId) {
-        int numCameras = Camera.getNumberOfCameras();
+    fun getCameraId(requestedId: Int): Int {
+        val numCameras = Camera.getNumberOfCameras()
         if (numCameras == 0) {
-            Log.w(TAG, "No cameras!");
-            return -1;
+            Log.w(TAG, "No cameras!")
+            return -1
         }
 
-        int cameraId = requestedId;
+        var cameraId = requestedId
 
-        boolean explicitRequest = cameraId >= 0;
+        val explicitRequest = cameraId >= 0
 
         if (!explicitRequest) {
             // Select a camera if no explicit camera requested
-            int index = 0;
+            var index = 0
             while (index < numCameras) {
-                Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-                Camera.getCameraInfo(index, cameraInfo);
-                if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                    break;
+                val cameraInfo = CameraInfo()
+                Camera.getCameraInfo(index, cameraInfo)
+                if (cameraInfo.facing == CameraInfo.CAMERA_FACING_BACK) {
+                    break
                 }
-                index++;
+                index++
             }
 
-            cameraId = index;
+            cameraId = index
         }
 
-        if (cameraId < numCameras) {
-            return cameraId;
+        return if (cameraId < numCameras) {
+            cameraId
         } else {
             if (explicitRequest) {
-                return -1;
+                -1
             } else {
-                return 0;
+                0
             }
         }
     }
 
     /**
-     * Opens the requested camera with {@link Camera#open(int)}, if one exists.
+     * Opens the requested camera with [Camera.open], if one exists.
      *
      * @param requestedId camera ID of the camera to use. A negative value
-     *                    or {@link #NO_REQUESTED_CAMERA} means "no preference"
-     * @return handle to {@link Camera} that was opened
+     * or [.NO_REQUESTED_CAMERA] means "no preference"
+     * @return handle to [Camera] that was opened
      */
-    public static Camera open(int requestedId) {
-        int cameraId = getCameraId(requestedId);
-        if (cameraId == -1) {
-            return null;
+    fun open(requestedId: Int): Camera? {
+        val cameraId = getCameraId(requestedId)
+        return if (cameraId == -1) {
+            null
         } else {
-            return Camera.open(cameraId);
+            Camera.open(cameraId)
         }
     }
 }

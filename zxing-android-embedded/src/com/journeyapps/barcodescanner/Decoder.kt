@@ -1,16 +1,13 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.Reader;
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.ResultPointCallback;
-import com.google.zxing.common.HybridBinarizer;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.LuminanceSource
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.Reader
+import com.google.zxing.Result
+import com.google.zxing.ResultPoint
+import com.google.zxing.ResultPointCallback
+import com.google.zxing.common.HybridBinarizer
 
 /**
  * A class for decoding images.
@@ -19,24 +16,15 @@ import java.util.List;
  *
  * The actual decoding should happen on a dedicated thread.
  */
-public class Decoder implements ResultPointCallback {
-    private Reader reader;
 
-    /**
-     * Create a new Decoder with the specified Reader.
-     *
-     * It is recommended to use an instance of MultiFormatReader in most cases.
-     *
-     * @param reader the reader
-     */
-    public Decoder(Reader reader) {
-        this.reader = reader;
-    }
-
-    protected Reader getReader() {
-        return reader;
-    }
-
+/**
+ * Create a new Decoder with the specified Reader.
+ *
+ * It is recommended to use an instance of MultiFormatReader in most cases.
+ *
+ * @param reader the reader
+ */
+open class Decoder(protected val reader: Reader) : ResultPointCallback {
     /**
      * Given an image source, attempt to decode the barcode.
      *
@@ -45,8 +33,8 @@ public class Decoder implements ResultPointCallback {
      * @param source the image source
      * @return a Result or null
      */
-    public Result decode(LuminanceSource source) {
-        return decode(toBitmap(source));
+    fun decode(source: LuminanceSource?): Result? {
+        return decode(toBitmap(source))
     }
 
     /**
@@ -57,8 +45,8 @@ public class Decoder implements ResultPointCallback {
      * @param source the image source
      * @return a BinaryBitmap
      */
-    protected BinaryBitmap toBitmap(LuminanceSource source) {
-        return new BinaryBitmap(new HybridBinarizer(source));
+    protected open fun toBitmap(source: LuminanceSource?): BinaryBitmap? {
+        return BinaryBitmap(HybridBinarizer(source))
     }
 
     /**
@@ -67,24 +55,24 @@ public class Decoder implements ResultPointCallback {
      * @param bitmap the binary bitmap
      * @return a Result or null
      */
-    protected Result decode(BinaryBitmap bitmap) {
-        possibleResultPoints.clear();
-        try {
-            if (reader instanceof MultiFormatReader) {
+    protected fun decode(bitmap: BinaryBitmap?): Result? {
+        possibleResultPoints.clear()
+        return try {
+            if (reader is MultiFormatReader) {
                 // Optimization - MultiFormatReader's normal decode() method is slow.
-                return ((MultiFormatReader) reader).decodeWithState(bitmap);
+                reader.decodeWithState(bitmap)
             } else {
-                return reader.decode(bitmap);
+                reader.decode(bitmap)
             }
-        } catch (Exception e) {
+        } catch (e: Exception) {
             // Decode error, try again next frame
-            return null;
+            null
         } finally {
-            reader.reset();
+            reader.reset()
         }
     }
 
-    private List<ResultPoint> possibleResultPoints = new ArrayList<>();
+    private val possibleResultPoints: MutableList<ResultPoint> = ArrayList()
 
     /**
      * Call immediately after decode(), from the same thread.
@@ -93,12 +81,11 @@ public class Decoder implements ResultPointCallback {
      *
      * @return possible ResultPoints from the last decode.
      */
-    public List<ResultPoint> getPossibleResultPoints() {
-        return new ArrayList<>(possibleResultPoints);
+    fun getPossibleResultPoints(): List<ResultPoint> {
+        return ArrayList(possibleResultPoints)
     }
 
-    @Override
-    public void foundPossibleResultPoint(ResultPoint point) {
-        possibleResultPoints.add(point);
+    override fun foundPossibleResultPoint(point: ResultPoint) {
+        possibleResultPoints.add(point)
     }
 }

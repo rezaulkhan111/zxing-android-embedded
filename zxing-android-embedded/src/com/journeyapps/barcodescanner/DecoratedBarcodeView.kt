@@ -1,77 +1,66 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.TypedArray;
-import android.util.AttributeSet;
-import android.view.KeyEvent;
-import android.widget.FrameLayout;
-import android.widget.TextView;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.MultiFormatReader;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.DecodeFormatManager;
-import com.google.zxing.client.android.DecodeHintManager;
-import com.google.zxing.client.android.Intents;
-import com.google.zxing.client.android.R;
-import com.journeyapps.barcodescanner.camera.CameraParametersCallback;
-import com.journeyapps.barcodescanner.camera.CameraSettings;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import android.content.Context
+import android.content.Intent
+import android.util.AttributeSet
+import android.view.KeyEvent
+import android.widget.FrameLayout
+import android.widget.TextView
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.ResultPoint
+import com.google.zxing.client.android.DecodeFormatManager
+import com.google.zxing.client.android.DecodeHintManager
+import com.google.zxing.client.android.Intents
+import com.google.zxing.client.android.R
+import com.journeyapps.barcodescanner.camera.CameraParametersCallback
+import com.journeyapps.barcodescanner.camera.CameraSettings
 
 /**
  * Encapsulates BarcodeView, ViewfinderView and status text.
  *
  * To customize the UI, use BarcodeView and ViewfinderView directly.
  */
-public class DecoratedBarcodeView extends FrameLayout {
-    private BarcodeView barcodeView;
-    private ViewfinderView viewFinder;
-    private TextView statusView;
+open class DecoratedBarcodeView : FrameLayout {
+    var barcodeView: BarcodeView? = null
+    var viewFinder: ViewfinderView? = null
+        private set
+    var statusView: TextView? = null
+        private set
 
     /**
      * The instance of @link TorchListener to send events callback.
      */
-    private TorchListener torchListener;
+    private var torchListener: TorchListener? = null
 
-    private class WrappedCallback implements BarcodeCallback {
-        private BarcodeCallback delegate;
-
-        public WrappedCallback(BarcodeCallback delegate) {
-            this.delegate = delegate;
+    private inner class WrappedCallback(private val delegate: BarcodeCallback) : BarcodeCallback {
+        override fun barcodeResult(result: BarcodeResult?) {
+            delegate.barcodeResult(result)
         }
 
-        @Override
-        public void barcodeResult(BarcodeResult result) {
-            delegate.barcodeResult(result);
-        }
-
-        @Override
-        public void possibleResultPoints(List<ResultPoint> resultPoints) {
-            for (ResultPoint point : resultPoints) {
-                viewFinder.addPossibleResultPoint(point);
+        override fun possibleResultPoints(resultPoints: List<ResultPoint>?) {
+            if (!resultPoints.isNullOrEmpty()) {
+                resultPoints?.forEach { point ->
+                    viewFinder!!.addPossibleResultPoint(point)
+                }
+                delegate.possibleResultPoints(resultPoints)
             }
-            delegate.possibleResultPoints(resultPoints);
         }
     }
 
-    public DecoratedBarcodeView(Context context) {
-        super(context);
-        initialize();
+    constructor(context: Context) : super(context) {
+        initialize()
     }
 
-    public DecoratedBarcodeView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initialize(attrs);
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        initialize(attrs)
     }
 
-    public DecoratedBarcodeView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initialize(attrs);
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
+        initialize(attrs)
     }
 
     /**
@@ -79,48 +68,45 @@ public class DecoratedBarcodeView extends FrameLayout {
      *
      * @param attrs The attributes to use on view.
      */
-    private void initialize(AttributeSet attrs) {
-        // Get attributes set on view
-        TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.zxing_view);
-
-        int scannerLayout = attributes.getResourceId(
-                R.styleable.zxing_view_zxing_scanner_layout, R.layout.zxing_barcode_scanner);
-
-        attributes.recycle();
-
-        inflate(getContext(), scannerLayout, this);
-
-        barcodeView = findViewById(R.id.zxing_barcode_surface);
-
-        if (barcodeView == null) {
-            throw new IllegalArgumentException(
-                "There is no a com.journeyapps.barcodescanner.BarcodeView on provided layout " +
-                "with the id \"zxing_barcode_surface\".");
-        }
-
-        // Pass on any preview-related attributes
-        barcodeView.initializeAttributes(attrs);
-
-
-        viewFinder = findViewById(R.id.zxing_viewfinderView);
-
-        if (viewFinder == null) {
-            throw new IllegalArgumentException(
-                "There is no a com.journeyapps.barcodescanner.ViewfinderView on provided layout " +
-                "with the id \"zxing_viewfinder_view\".");
-        }
-
-        viewFinder.setCameraPreview(barcodeView);
-
-        // statusView is optional
-        statusView = findViewById(R.id.zxing_status_view);
-    }
-
     /**
      * Initialize with no custom attributes set.
      */
-    private void initialize() {
-        initialize(null);
+    private fun initialize(attrs: AttributeSet? = null) {
+        // Get attributes set on view
+        val attributes = context.obtainStyledAttributes(attrs, R.styleable.zxing_view)
+
+        val scannerLayout = attributes.getResourceId(
+            R.styleable.zxing_view_zxing_scanner_layout, R.layout.zxing_barcode_scanner
+        )
+
+        attributes.recycle()
+
+        inflate(context, scannerLayout, this)
+
+        barcodeView = findViewById(R.id.zxing_barcode_surface)
+
+        requireNotNull(barcodeView) {
+            "There is no a com.journeyapps.barcodescanner.BarcodeView on provided layout " +
+                    "with the id \"zxing_barcode_surface\"."
+        }
+
+        // Pass on any preview-related attributes
+        barcodeView!!.initializeAttributes(attrs)
+
+
+        viewFinder = findViewById(R.id.zxing_viewfinderView)
+
+        requireNotNull(viewFinder) {
+            "There is no a com.journeyapps.barcodescanner.ViewfinderView on provided layout " +
+                    "with the id \"zxing_viewfinder_view\"."
+        }
+
+        if (barcodeView != null) {
+            viewFinder!!.setCameraPreview(barcodeView!!)
+        }
+
+        // statusView is optional
+        statusView = findViewById(R.id.zxing_status_view)
     }
 
     /**
@@ -128,143 +114,138 @@ public class DecoratedBarcodeView extends FrameLayout {
      *
      * @param intent the intent, as generated by IntentIntegrator
      */
-    public void initializeFromIntent(Intent intent) {
+    fun initializeFromIntent(intent: Intent) {
         // Scan the formats the intent requested, and return the result to the calling activity.
-        Set<BarcodeFormat> decodeFormats = DecodeFormatManager.parseDecodeFormats(intent);
-        Map<DecodeHintType, Object> decodeHints = DecodeHintManager.parseDecodeHints(intent);
+        val decodeFormats = DecodeFormatManager.parseDecodeFormats(intent)
+        val decodeHints = DecodeHintManager.parseDecodeHints(intent)
 
-        CameraSettings settings = new CameraSettings();
+        val settings = CameraSettings()
 
         if (intent.hasExtra(Intents.Scan.CAMERA_ID)) {
-            int cameraId = intent.getIntExtra(Intents.Scan.CAMERA_ID, -1);
+            val cameraId = intent.getIntExtra(Intents.Scan.CAMERA_ID, -1)
             if (cameraId >= 0) {
-                settings.setRequestedCameraId(cameraId);
+                settings.requestedCameraId = cameraId
             }
         }
 
         if (intent.hasExtra(Intents.Scan.TORCH_ENABLED)) {
             if (intent.getBooleanExtra(Intents.Scan.TORCH_ENABLED, false)) {
-                this.setTorchOn();
+                this.setTorchOn()
             }
         }
 
-        String customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE);
+        val customPromptMessage = intent.getStringExtra(Intents.Scan.PROMPT_MESSAGE)
         if (customPromptMessage != null) {
-            setStatusText(customPromptMessage);
+            setStatusText(customPromptMessage)
         }
 
         // Check what type of scan. Default: normal scan
-        int scanType = intent.getIntExtra(Intents.Scan.SCAN_TYPE, 0);
+        val scanType = intent.getIntExtra(Intents.Scan.SCAN_TYPE, 0)
 
-        String characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET);
+        val characterSet = intent.getStringExtra(Intents.Scan.CHARACTER_SET)
 
-        MultiFormatReader reader = new MultiFormatReader();
-        reader.setHints(decodeHints);
+        val reader = MultiFormatReader()
+        reader.setHints(decodeHints)
 
-        barcodeView.setCameraSettings(settings);
-        barcodeView.setDecoderFactory(new DefaultDecoderFactory(decodeFormats, decodeHints, characterSet, scanType));
+        barcodeView!!.cameraSettings = settings
+        barcodeView!!.setDecoderFactory(
+            DefaultDecoderFactory(
+                decodeFormats,
+                decodeHints,
+                characterSet,
+                scanType
+            )
+        )
     }
 
-    public void setCameraSettings(CameraSettings cameraSettings) {
-        barcodeView.setCameraSettings(cameraSettings);
-    }
+    var decoderFactory: DecoderFactory?
+        get() = barcodeView!!.getDecoderFactory()
+        set(decoderFactory) {
+            barcodeView!!.setDecoderFactory(decoderFactory)
+        }
 
-    public void setDecoderFactory(DecoderFactory decoderFactory) {
-        barcodeView.setDecoderFactory(decoderFactory);
-    }
+    var cameraSettings: CameraSettings
+        get() = barcodeView!!.cameraSettings
+        set(cameraSettings) {
+            barcodeView!!.cameraSettings = cameraSettings
+        }
 
-    public DecoderFactory getDecoderFactory() {
-        return barcodeView.getDecoderFactory();
-    }
-
-    public CameraSettings getCameraSettings() {
-        return barcodeView.getCameraSettings();
-    }
-
-    public void setStatusText(String text) {
+    fun setStatusText(text: String?) {
         // statusView is optional when using a custom layout
         if (statusView != null) {
-            statusView.setText(text);
+            statusView!!.text = text
         }
     }
 
     /**
-     * @see BarcodeView#pause()
+     * @see BarcodeView.pause
      */
-    public void pause() {
-        barcodeView.pause();
+    fun pause() {
+        barcodeView!!.pause()
     }
 
     /**
-     * @see BarcodeView#pauseAndWait()
+     * @see BarcodeView.pauseAndWait
      */
-    public void pauseAndWait() {
-        barcodeView.pauseAndWait();
+    fun pauseAndWait() {
+        barcodeView!!.pauseAndWait()
     }
 
     /**
-     * @see BarcodeView#resume()
+     * @see BarcodeView.resume
      */
-    public void resume() {
-        barcodeView.resume();
+    fun resume() {
+        barcodeView!!.resume()
     }
 
-    public BarcodeView getBarcodeView() {
-        return findViewById(R.id.zxing_barcode_surface);
-    }
-
-    public ViewfinderView getViewFinder() {
-        return viewFinder;
-    }
-
-    public TextView getStatusView() {
-        return statusView;
+    fun getBarcodeView(): BarcodeView {
+        return findViewById(R.id.zxing_barcode_surface)
     }
 
     /**
-     * @see BarcodeView#decodeSingle(BarcodeCallback)
+     * @see BarcodeView.decodeSingle
      */
-    public void decodeSingle(BarcodeCallback callback) {
-        barcodeView.decodeSingle(new WrappedCallback(callback));
+    fun decodeSingle(callback: BarcodeCallback) {
+        barcodeView!!.decodeSingle(WrappedCallback(callback))
     }
 
     /**
-     * @see BarcodeView#decodeContinuous(BarcodeCallback)
+     * @see BarcodeView.decodeContinuous
      */
-    public void decodeContinuous(BarcodeCallback callback) {
-        barcodeView.decodeContinuous(new WrappedCallback(callback));
+    fun decodeContinuous(callback: BarcodeCallback) {
+        barcodeView!!.decodeContinuous(WrappedCallback(callback))
     }
 
     /**
      * Turn on the device's flashlight.
      */
-    public void setTorchOn() {
-        barcodeView.setTorch(true);
+    fun setTorchOn() {
+        barcodeView!!.setTorch(true)
 
         if (torchListener != null) {
-            torchListener.onTorchOn();
+            torchListener!!.onTorchOn()
         }
     }
 
     /**
      * Turn off the device's flashlight.
      */
-    public void setTorchOff() {
-        barcodeView.setTorch(false);
+    fun setTorchOff() {
+        barcodeView!!.setTorch(false)
 
         if (torchListener != null) {
-            torchListener.onTorchOff();
+            torchListener!!.onTorchOff()
         }
     }
 
     /**
      * Changes the settings for Camera.
-     * Must be called after {@link #resume()}.
+     * Must be called after [.resume].
      *
-     * @param callback {@link CameraParametersCallback}
+     * @param callback [CameraParametersCallback]
      */
-    public void changeCameraParameters(CameraParametersCallback callback) {
-        barcodeView.changeCameraParameters(callback);
+    fun changeCameraParameters(callback: CameraParametersCallback?) {
+        barcodeView!!.changeCameraParameters(callback)
     }
 
     /**
@@ -272,35 +253,34 @@ public class DecoratedBarcodeView extends FrameLayout {
      *
      * Note that this view is not usually focused, so the Activity should call this directly.
      */
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_FOCUS:
-            case KeyEvent.KEYCODE_CAMERA:
-                // Handle these events so they don't launch the Camera app
-                return true;
-            // Use volume up/down to turn on light
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                setTorchOff();
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                setTorchOn();
-                return true;
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_FOCUS, KeyEvent.KEYCODE_CAMERA ->                 // Handle these events so they don't launch the Camera app
+                return true
+
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                setTorchOff()
+                return true
+            }
+
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                setTorchOn()
+                return true
+            }
         }
-        return super.onKeyDown(keyCode, event);
+        return super.onKeyDown(keyCode, event)
     }
 
-    public void setTorchListener(TorchListener listener) {
-        this.torchListener = listener;
+    fun setTorchListener(listener: TorchListener?) {
+        this.torchListener = listener
     }
 
     /**
      * The Listener to torch/fflashlight events (turn on, turn off).
      */
-    public interface TorchListener {
+    interface TorchListener {
+        fun onTorchOn()
 
-        void onTorchOn();
-
-        void onTorchOff();
+        fun onTorchOff()
     }
 }

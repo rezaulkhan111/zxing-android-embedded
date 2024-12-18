@@ -1,11 +1,11 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import com.journeyapps.barcodescanner.SourceData;
+import com.journeyapps.barcodescanner.SourceData
 
 /**
  * Callback for camera previews.
  */
-public interface PreviewCallback {
-    void onPreview(SourceData sourceData);
-    void onPreviewError(Exception e);
+interface PreviewCallback {
+    fun onPreview(sourceData: SourceData?)
+    fun onPreviewError(e: Exception?)
 }

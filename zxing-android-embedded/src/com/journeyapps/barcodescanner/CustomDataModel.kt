@@ -1,31 +1,30 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.graphics.Bitmap;
+import android.graphics.Bitmap
 
-import androidx.annotation.NonNull;
+class CustomDataModel {
+    @JvmField
+    var toolbarTitle: String? = null
 
-public class CustomDataModel {
+    @JvmField
+    var productImage: Bitmap? = null
 
-    @NonNull
-    public String toolbarTitle;
+    @JvmField
+    var productName: String? = null
 
-    @NonNull
-    public Bitmap productImage;
+    @JvmField
+    var productQuantity: String? = null
 
-    @NonNull
-    public String productName;
+    @JvmField
+    var bsMessage1: String? = null
 
-    @NonNull
-    public String productQuantity;
+    @JvmField
+    var bsMessage2: String? = null
 
-    @NonNull
-    public String bsMessage1;
-
-    @NonNull
-    public String bsMessage2;
-
-    @NonNull
-    public String buttonText;
-    public String buttonColor;
-    public String buttonTextColor;
+    @JvmField
+    var buttonText: String? = null
+    @JvmField
+    var buttonColor: String? = null
+    @JvmField
+    var buttonTextColor: String? = null
 }

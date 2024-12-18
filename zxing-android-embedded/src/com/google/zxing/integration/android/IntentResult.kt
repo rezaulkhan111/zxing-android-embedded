@@ -13,108 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.zxing.integration.android
 
-package com.google.zxing.integration.android;
-
-import android.content.Intent;
+import android.content.Intent
 
 /**
- * <p>Encapsulates the result of a barcode scan invoked through {@link IntentIntegrator}.</p>
+ *
+ * Encapsulates the result of a barcode scan invoked through [IntentIntegrator].
  *
  * @author Sean Owen
  */
-public final class IntentResult {
-
-    private final String contents;
-    private final String formatName;
-    private final byte[] rawBytes;
-    private final Integer orientation;
-    private final String errorCorrectionLevel;
-    private final String barcodeImagePath;
-    private final Intent originalIntent;
-
-    IntentResult() {
-        this(null, null, null, null, null, null, null);
-    }
-
-    IntentResult(Intent intent) {
-        this(null, null, null, null, null, null, intent);
-    }
-
-    IntentResult(String contents,
-                 String formatName,
-                 byte[] rawBytes,
-                 Integer orientation,
-                 String errorCorrectionLevel,
-                 String barcodeImagePath,
-                 Intent originalIntent) {
-        this.contents = contents;
-        this.formatName = formatName;
-        this.rawBytes = rawBytes;
-        this.orientation = orientation;
-        this.errorCorrectionLevel = errorCorrectionLevel;
-        this.barcodeImagePath = barcodeImagePath;
-        this.originalIntent = originalIntent;
-    }
-
+class IntentResult @JvmOverloads internal constructor(
     /**
      * @return raw content of barcode
      */
-    public String getContents() {
-        return contents;
-    }
-
+    val contents: String? = null,
     /**
-     * @return name of format, like "QR_CODE", "UPC_A". See {@code BarcodeFormat} for more format names.
+     * @return name of format, like "QR_CODE", "UPC_A". See `BarcodeFormat` for more format names.
      */
-    public String getFormatName() {
-        return formatName;
-    }
-
+    val formatName: String? = null,
     /**
      * @return raw bytes of the barcode content, if applicable, or null otherwise
      */
-    public byte[] getRawBytes() {
-        return rawBytes;
-    }
-
+    val rawBytes: ByteArray? = null,
     /**
      * @return rotation of the image, in degrees, which resulted in a successful scan. May be null.
      */
-    public Integer getOrientation() {
-        return orientation;
-    }
-
+    val orientation: Int? = null,
     /**
      * @return name of the error correction level used in the barcode, if applicable
      */
-    public String getErrorCorrectionLevel() {
-        return errorCorrectionLevel;
-    }
-
+    val errorCorrectionLevel: String? = null,
     /**
      * @return path to a temporary file containing the barcode image, if applicable, or null otherwise
      */
-    public String getBarcodeImagePath() {
-        return barcodeImagePath;
-    }
-
+    val barcodeImagePath: String? = null,
     /**
      * @return the original intent
      */
-    public Intent getOriginalIntent() {
-        return originalIntent;
-    }
+    val originalIntent: Intent? = null
+) {
+    internal constructor(intent: Intent?) : this(null, null, null, null, null, null, intent)
 
-    @Override
-    public String toString() {
-        int rawBytesLength = rawBytes == null ? 0 : rawBytes.length;
-        return "Format: " + formatName + '\n' +
-            "Contents: " + contents + '\n' +
-            "Raw bytes: (" + rawBytesLength + " bytes)\n" +
-            "Orientation: " + orientation + '\n' +
-            "EC level: " + errorCorrectionLevel + '\n' +
-            "Barcode image: " + barcodeImagePath + '\n' +
-            "Original intent: " + originalIntent + '\n';
+    override fun toString(): String {
+        val rawBytesLength = rawBytes?.size ?: 0
+        return """Format: $formatName
+Contents: $contents
+Raw bytes: ($rawBytesLength bytes)
+Orientation: $orientation
+EC level: $errorCorrectionLevel
+Barcode image: $barcodeImagePath
+Original intent: $originalIntent
+"""
     }
 }

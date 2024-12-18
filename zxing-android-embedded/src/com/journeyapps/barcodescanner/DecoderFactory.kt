@@ -1,16 +1,13 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import com.google.zxing.DecodeHintType;
-
-import java.util.Map;
+import com.google.zxing.DecodeHintType
 
 /**
  * Factory to create Decoder instances. Typically one instance will be created per DecoderThread.
  *
  * @see DefaultDecoderFactory
  */
-public interface DecoderFactory {
-
+interface DecoderFactory {
     /**
      * Create a new Decoder.
      *
@@ -20,5 +17,5 @@ public interface DecoderFactory {
      * @param baseHints default hints. Typically specifies DecodeHintType.NEED_RESULT_POINT_CALLBACK.
      * @return a new Decoder
      */
-    Decoder createDecoder(Map<DecodeHintType, ?> baseHints);
+    fun createDecoder(baseHints: Map<DecodeHintType?, *>?): Decoder?
 }

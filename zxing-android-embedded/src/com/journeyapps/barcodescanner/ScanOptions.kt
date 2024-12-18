@@ -2,73 +2,31 @@
  * Based on IntentIntegrator, Copyright 2009 ZXing authors.
  *
  */
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import com.google.zxing.client.android.Intents
+import java.util.Arrays
+import java.util.Collections
 
-import com.google.zxing.client.android.Intents;
+class ScanOptions {
+    private val moreExtras: MutableMap<String, Any> = HashMap(3)
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+    private var desiredBarcodeFormats: Collection<String>? = null
 
-public class ScanOptions {
-    // supported barcode formats
-
-    // Product Codes
-    public static final String UPC_A = "UPC_A";
-    public static final String UPC_E = "UPC_E";
-    public static final String EAN_8 = "EAN_8";
-    public static final String EAN_13 = "EAN_13";
-    public static final String RSS_14 = "RSS_14";
-
-    // Other 1D
-    public static final String CODE_39 = "CODE_39";
-    public static final String CODE_93 = "CODE_93";
-    public static final String CODE_128 = "CODE_128";
-    public static final String ITF = "ITF";
-
-    public static final String RSS_EXPANDED = "RSS_EXPANDED";
-
-    // 2D
-    public static final String QR_CODE = "QR_CODE";
-    public static final String DATA_MATRIX = "DATA_MATRIX";
-    public static final String PDF_417 = "PDF_417";
+    private var captureActivity: Class<*>? = null
 
 
-    public static final Collection<String> PRODUCT_CODE_TYPES = list(UPC_A, UPC_E, EAN_8, EAN_13, RSS_14);
-    public static final Collection<String> ONE_D_CODE_TYPES =
-            list(UPC_A, UPC_E, EAN_8, EAN_13, RSS_14, CODE_39, CODE_93, CODE_128,
-                    ITF, RSS_14, RSS_EXPANDED);
+    protected val defaultCaptureActivity: Class<*>
+        get() = CaptureActivity::class.java
 
-    public static final Collection<String> ALL_CODE_TYPES = null;
-
-    private final Map<String, Object> moreExtras = new HashMap<>(3);
-
-    private Collection<String> desiredBarcodeFormats;
-
-    private Class<?> captureActivity;
-
-
-    protected Class<?> getDefaultCaptureActivity() {
-        return CaptureActivity.class;
-    }
-
-    public ScanOptions() {
-
-    }
-
-
-    public Class<?> getCaptureActivity() {
+    fun getCaptureActivity(): Class<*> {
         if (captureActivity == null) {
-            captureActivity = getDefaultCaptureActivity();
+            captureActivity = defaultCaptureActivity
         }
-        return captureActivity;
+        return captureActivity
     }
 
     /**
@@ -77,18 +35,18 @@ public class ScanOptions {
      *
      * @param captureActivity the class
      */
-    public ScanOptions setCaptureActivity(Class<?> captureActivity) {
-        this.captureActivity = captureActivity;
-        return this;
+    fun setCaptureActivity(captureActivity: Class<*>?): ScanOptions {
+        this.captureActivity = captureActivity
+        return this
     }
 
-    public Map<String, ?> getMoreExtras() {
-        return moreExtras;
+    fun getMoreExtras(): Map<String, *> {
+        return moreExtras
     }
 
-    public final ScanOptions addExtra(String key, Object value) {
-        moreExtras.put(key, value);
-        return this;
+    fun addExtra(key: String, value: Any): ScanOptions {
+        moreExtras[key] = value
+        return this
     }
 
     /**
@@ -96,11 +54,11 @@ public class ScanOptions {
      *
      * @param prompt the prompt to display
      */
-    public final ScanOptions setPrompt(String prompt) {
+    fun setPrompt(prompt: String?): ScanOptions {
         if (prompt != null) {
-            addExtra(Intents.Scan.PROMPT_MESSAGE, prompt);
+            addExtra(Intents.Scan.PROMPT_MESSAGE, prompt)
         }
-        return this;
+        return this
     }
 
     /**
@@ -108,9 +66,9 @@ public class ScanOptions {
      *
      * @param locked true to lock orientation
      */
-    public ScanOptions setOrientationLocked(boolean locked) {
-        addExtra(Intents.Scan.ORIENTATION_LOCKED, locked);
-        return this;
+    fun setOrientationLocked(locked: Boolean): ScanOptions {
+        addExtra(Intents.Scan.ORIENTATION_LOCKED, locked)
+        return this
     }
 
     /**
@@ -119,11 +77,11 @@ public class ScanOptions {
      * @param cameraId camera ID of the camera to use. A negative value means "no preference".
      * @return this
      */
-    public ScanOptions setCameraId(int cameraId) {
+    fun setCameraId(cameraId: Int): ScanOptions {
         if (cameraId >= 0) {
-            addExtra(Intents.Scan.CAMERA_ID, cameraId);
+            addExtra(Intents.Scan.CAMERA_ID, cameraId)
         }
-        return this;
+        return this
     }
 
     /**
@@ -132,9 +90,9 @@ public class ScanOptions {
      * @param enabled true to enable initial torch
      * @return this
      */
-    public ScanOptions setTorchEnabled(boolean enabled) {
-        addExtra(Intents.Scan.TORCH_ENABLED, enabled);
-        return this;
+    fun setTorchEnabled(enabled: Boolean): ScanOptions {
+        addExtra(Intents.Scan.TORCH_ENABLED, enabled)
+        return this
     }
 
 
@@ -144,9 +102,9 @@ public class ScanOptions {
      * @param enabled false to disable beep
      * @return this
      */
-    public ScanOptions setBeepEnabled(boolean enabled) {
-        addExtra(Intents.Scan.BEEP_ENABLED, enabled);
-        return this;
+    fun setBeepEnabled(enabled: Boolean): ScanOptions {
+        addExtra(Intents.Scan.BEEP_ENABLED, enabled)
+        return this
     }
 
     /**
@@ -155,31 +113,31 @@ public class ScanOptions {
      * @param enabled true to enable barcode image
      * @return this
      */
-    public ScanOptions setBarcodeImageEnabled(boolean enabled) {
-        addExtra(Intents.Scan.BARCODE_IMAGE_ENABLED, enabled);
-        return this;
+    fun setBarcodeImageEnabled(enabled: Boolean): ScanOptions {
+        addExtra(Intents.Scan.BARCODE_IMAGE_ENABLED, enabled)
+        return this
     }
 
     /**
      * Set the desired barcode formats to scan.
      *
-     * @param desiredBarcodeFormats names of {@code BarcodeFormat}s to scan for
+     * @param desiredBarcodeFormats names of `BarcodeFormat`s to scan for
      * @return this
      */
-    public ScanOptions setDesiredBarcodeFormats(Collection<String> desiredBarcodeFormats) {
-        this.desiredBarcodeFormats = desiredBarcodeFormats;
-        return this;
+    fun setDesiredBarcodeFormats(desiredBarcodeFormats: Collection<String>?): ScanOptions {
+        this.desiredBarcodeFormats = desiredBarcodeFormats
+        return this
     }
 
     /**
      * Set the desired barcode formats to scan.
      *
-     * @param desiredBarcodeFormats names of {@code BarcodeFormat}s to scan for
+     * @param desiredBarcodeFormats names of `BarcodeFormat`s to scan for
      * @return this
      */
-    public ScanOptions setDesiredBarcodeFormats(String... desiredBarcodeFormats) {
-        this.desiredBarcodeFormats = Arrays.asList(desiredBarcodeFormats);
-        return this;
+    fun setDesiredBarcodeFormats(vararg desiredBarcodeFormats: String): ScanOptions {
+        this.desiredBarcodeFormats = Arrays.asList(*desiredBarcodeFormats)
+        return this
     }
 
     /**
@@ -188,9 +146,9 @@ public class ScanOptions {
      *
      * @return Activity.RESULT_CANCELED and true on parameter TIMEOUT.
      */
-    public ScanOptions setTimeout(long timeout) {
-        addExtra(Intents.Scan.TIMEOUT, timeout);
-        return this;
+    fun setTimeout(timeout: Long): ScanOptions {
+        addExtra(Intents.Scan.TIMEOUT, timeout)
+        return this
     }
 
     /**
@@ -198,65 +156,95 @@ public class ScanOptions {
      *
      * @return the intent
      */
-    public Intent createScanIntent(Context context) {
-        Intent intentScan = new Intent(context, getCaptureActivity());
-        intentScan.setAction(Intents.Scan.ACTION);
+    fun createScanIntent(context: Context?): Intent {
+        val intentScan = Intent(context, getCaptureActivity())
+        intentScan.setAction(Intents.Scan.ACTION)
 
         // check which types of codes to scan for
         if (desiredBarcodeFormats != null) {
             // set the desired barcode types
-            StringBuilder joinedByComma = new StringBuilder();
-            for (String format : desiredBarcodeFormats) {
-                if (joinedByComma.length() > 0) {
-                    joinedByComma.append(',');
+            val joinedByComma = StringBuilder()
+            for (format in desiredBarcodeFormats!!) {
+                if (joinedByComma.length > 0) {
+                    joinedByComma.append(',')
                 }
-                joinedByComma.append(format);
+                joinedByComma.append(format)
             }
-            intentScan.putExtra(Intents.Scan.FORMATS, joinedByComma.toString());
+            intentScan.putExtra(Intents.Scan.FORMATS, joinedByComma.toString())
         }
 
-        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        attachMoreExtras(intentScan);
-        return intentScan;
+        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+        attachMoreExtras(intentScan)
+        return intentScan
     }
 
-    private static List<String> list(String... values) {
-        return Collections.unmodifiableList(Arrays.asList(values));
-    }
-
-    private void attachMoreExtras(Intent intent) {
-        for (Map.Entry<String, Object> entry : moreExtras.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
+    private fun attachMoreExtras(intent: Intent) {
+        for ((key, value) in moreExtras) {
             // Kind of hacky
-            if (value instanceof Integer) {
-                intent.putExtra(key, (Integer) value);
-            } else if (value instanceof Long) {
-                intent.putExtra(key, (Long) value);
-            } else if (value instanceof Boolean) {
-                intent.putExtra(key, (Boolean) value);
-            } else if (value instanceof Double) {
-                intent.putExtra(key, (Double) value);
-            } else if (value instanceof Float) {
-                intent.putExtra(key, (Float) value);
-            } else if (value instanceof Bundle) {
-                intent.putExtra(key, (Bundle) value);
-            } else if (value instanceof int[]) {
-                intent.putExtra(key, (int[]) value);
-            } else if (value instanceof long[]) {
-                intent.putExtra(key, (long[]) value);
-            } else if (value instanceof boolean[]) {
-                intent.putExtra(key, (boolean[]) value);
-            } else if (value instanceof double[]) {
-                intent.putExtra(key, (double[]) value);
-            } else if (value instanceof float[]) {
-                intent.putExtra(key, (float[]) value);
-            } else if (value instanceof String[]) {
-                intent.putExtra(key, (String[]) value);
+            if (value is Int) {
+                intent.putExtra(key, value)
+            } else if (value is Long) {
+                intent.putExtra(key, value)
+            } else if (value is Boolean) {
+                intent.putExtra(key, value)
+            } else if (value is Double) {
+                intent.putExtra(key, value)
+            } else if (value is Float) {
+                intent.putExtra(key, value)
+            } else if (value is Bundle) {
+                intent.putExtra(key, value)
+            } else if (value is IntArray) {
+                intent.putExtra(key, value)
+            } else if (value is LongArray) {
+                intent.putExtra(key, value)
+            } else if (value is BooleanArray) {
+                intent.putExtra(key, value)
+            } else if (value is DoubleArray) {
+                intent.putExtra(key, value)
+            } else if (value is FloatArray) {
+                intent.putExtra(key, value)
+            } else if (value is Array<*> && value.isArrayOf<String>()) {
+                intent.putExtra(key, value as Array<String?>)
             } else {
-                intent.putExtra(key, value.toString());
+                intent.putExtra(key, value.toString())
             }
+        }
+    }
+
+    companion object {
+        // supported barcode formats
+        // Product Codes
+        const val UPC_A: String = "UPC_A"
+        const val UPC_E: String = "UPC_E"
+        const val EAN_8: String = "EAN_8"
+        const val EAN_13: String = "EAN_13"
+        const val RSS_14: String = "RSS_14"
+
+        // Other 1D
+        const val CODE_39: String = "CODE_39"
+        const val CODE_93: String = "CODE_93"
+        const val CODE_128: String = "CODE_128"
+        const val ITF: String = "ITF"
+
+        const val RSS_EXPANDED: String = "RSS_EXPANDED"
+
+        // 2D
+        const val QR_CODE: String = "QR_CODE"
+        const val DATA_MATRIX: String = "DATA_MATRIX"
+        const val PDF_417: String = "PDF_417"
+
+
+        val PRODUCT_CODE_TYPES: Collection<String> = list(UPC_A, UPC_E, EAN_8, EAN_13, RSS_14)
+        val ONE_D_CODE_TYPES: Collection<String> = list(
+            UPC_A, UPC_E, EAN_8, EAN_13, RSS_14, CODE_39, CODE_93, CODE_128,
+            ITF, RSS_14, RSS_EXPANDED
+        )
+
+        val ALL_CODE_TYPES: Collection<String>? = null
+
+        private fun list(vararg values: String): List<String> {
+            return Collections.unmodifiableList(Arrays.asList(*values))
         }
     }
 }

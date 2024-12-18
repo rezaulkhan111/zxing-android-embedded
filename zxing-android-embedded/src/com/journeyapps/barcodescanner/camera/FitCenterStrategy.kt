@@ -1,18 +1,15 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import android.graphics.Rect;
-import android.util.Log;
-
-import com.journeyapps.barcodescanner.Size;
+import android.graphics.Rect
+import android.util.Log
+import com.journeyapps.barcodescanner.Size
+import kotlin.math.pow
 
 /**
  * Scales the size so that both dimensions will be greater than or equal to the corresponding
  * dimension of the parent. One of width or height will fit exactly. Aspect ratio is preserved.
  */
-public class FitCenterStrategy extends PreviewScalingStrategy {
-    private static final String TAG = FitCenterStrategy.class.getSimpleName();
-
-
+class FitCenterStrategy : PreviewScalingStrategy() {
     /**
      * Get a score for our size.
      *
@@ -25,35 +22,33 @@ public class FitCenterStrategy extends PreviewScalingStrategy {
      * @param desired the viewfinder size
      * @return the score
      */
-    @Override
-    protected float getScore(Size size, Size desired) {
+    override fun getScore(size: Size, desired: Size): Float {
         if (size.width <= 0 || size.height <= 0) {
-            return 0f;
+            return 0f
         }
-        Size scaled = size.scaleFit(desired);
+        val scaled = size.scaleFit(desired)
         // Scaling preserves aspect ratio
-        float scaleRatio = scaled.width * 1.0f / size.width;
+        val scaleRatio = scaled.width * 1.0f / size.width
 
         // Treat downscaling as slightly better than upscaling
-        float scaleScore;
-        if (scaleRatio > 1.0f) {
+        val scaleScore = if (scaleRatio > 1.0f) {
             // Upscaling
-            scaleScore = (float)Math.pow(1.0f / scaleRatio, 1.1);
+            (1.0f / scaleRatio).pow(1.1) as Float
         } else {
             // Downscaling
-            scaleScore = scaleRatio;
+            scaleRatio
         }
 
         // Ratio of scaledDimension / dimension.
         // Note that with scaleCrop, only one dimension is cropped.
-        float cropRatio = (desired.width * 1.0f / scaled.width) *
-                (desired.height * 1.0f / scaled.height);
+        val cropRatio = (desired.width * 1.0f / scaled.width) *
+                (desired.height * 1.0f / scaled.height)
 
         // Cropping is very bad, since it's used-visible for centerFit
         // 1.0 means no cropping.
-        float cropScore = 1.0f / cropRatio / cropRatio / cropRatio;
+        val cropScore = 1.0f / cropRatio / cropRatio / cropRatio
 
-        return scaleScore * cropScore;
+        return scaleScore * cropScore
     }
 
     /**
@@ -65,14 +60,21 @@ public class FitCenterStrategy extends PreviewScalingStrategy {
      * @param viewfinderSize the size of the viewfinder (display), in current display orientation
      * @return a rect placing the preview
      */
-    public Rect scalePreview(Size previewSize, Size viewfinderSize) {
+    override fun scalePreview(previewSize: Size, viewfinderSize: Size): Rect {
         // We avoid scaling if feasible.
-        Size scaledPreview = previewSize.scaleFit(viewfinderSize);
-        Log.i(TAG, "Preview: " + previewSize + "; Scaled: " + scaledPreview + "; Want: " + viewfinderSize);
+        val scaledPreview = previewSize.scaleFit(viewfinderSize)
+        Log.i(
+            TAG,
+            "Preview: $previewSize; Scaled: $scaledPreview; Want: $viewfinderSize"
+        )
 
-        int dx = (scaledPreview.width - viewfinderSize.width) / 2;
-        int dy = (scaledPreview.height - viewfinderSize.height) / 2;
+        val dx = (scaledPreview.width - viewfinderSize.width) / 2
+        val dy = (scaledPreview.height - viewfinderSize.height) / 2
 
-        return new Rect(-dx, -dy, scaledPreview.width - dx, scaledPreview.height - dy);
+        return Rect(-dx, -dy, scaledPreview.width - dx, scaledPreview.height - dy)
+    }
+
+    companion object {
+        private val TAG: String = FitCenterStrategy::class.java.simpleName
     }
 }

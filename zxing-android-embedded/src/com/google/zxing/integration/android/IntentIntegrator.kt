@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.zxing.integration.android
 
-package com.google.zxing.integration.android;
-
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.Fragment;
-import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
-
-import com.google.zxing.client.android.Intents;
-import com.journeyapps.barcodescanner.CaptureActivity;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.annotation.TargetApi
+import android.app.Activity
+import android.app.Fragment
+import android.content.Intent
+import android.os.Build
+import android.os.Bundle
+import com.google.zxing.client.android.Intents
+import com.journeyapps.barcodescanner.CaptureActivity
+import java.util.Arrays
+import java.util.Collections
 
 /**
  * @author Sean Owen
@@ -39,71 +32,29 @@ import java.util.Map;
  * @author Isaac Potoczny-Jones
  * @author Brad Drehmer
  * @author gcstang
- * @deprecated Use ScanOptions and ScanContract instead.
  */
-@SuppressWarnings("unused")
-public class IntentIntegrator {
+@Suppress("unused")
+@Deprecated("Use ScanOptions and ScanContract instead.")
+class IntentIntegrator(private val activity: Activity?) {
+    private var fragment: Fragment? = null
+    private var supportFragment: androidx.fragment.app.Fragment? = null
 
-    public static final int REQUEST_CODE = 0x0000c0de; // Only use bottom 16 bits
+    private val moreExtras: MutableMap<String, Any> = HashMap(3)
 
-    private static final String TAG = IntentIntegrator.class.getSimpleName();
+    private var desiredBarcodeFormats: Collection<String>? = null
 
+    private var captureActivity: Class<*>? = null
 
-    // supported barcode formats
+    private var requestCode = REQUEST_CODE
 
-    // Product Codes
-    public static final String UPC_A = "UPC_A";
-    public static final String UPC_E = "UPC_E";
-    public static final String EAN_8 = "EAN_8";
-    public static final String EAN_13 = "EAN_13";
-    public static final String RSS_14 = "RSS_14";
+    protected val defaultCaptureActivity: Class<*>
+        get() = CaptureActivity::class.java
 
-    // Other 1D
-    public static final String CODE_39 = "CODE_39";
-    public static final String CODE_93 = "CODE_93";
-    public static final String CODE_128 = "CODE_128";
-    public static final String ITF = "ITF";
-
-    public static final String RSS_EXPANDED = "RSS_EXPANDED";
-
-    // 2D
-    public static final String QR_CODE = "QR_CODE";
-    public static final String DATA_MATRIX = "DATA_MATRIX";
-    public static final String PDF_417 = "PDF_417";
-
-
-    public static final Collection<String> PRODUCT_CODE_TYPES = list(UPC_A, UPC_E, EAN_8, EAN_13, RSS_14);
-    public static final Collection<String> ONE_D_CODE_TYPES =
-            list(UPC_A, UPC_E, EAN_8, EAN_13, RSS_14, CODE_39, CODE_93, CODE_128,
-                    ITF, RSS_14, RSS_EXPANDED);
-
-    public static final Collection<String> ALL_CODE_TYPES = null;
-
-    private final Activity activity;
-    private android.app.Fragment fragment;
-    private androidx.fragment.app.Fragment supportFragment;
-
-    private final Map<String, Object> moreExtras = new HashMap<>(3);
-
-    private Collection<String> desiredBarcodeFormats;
-
-    private Class<?> captureActivity;
-
-    private int requestCode = REQUEST_CODE;
-
-    protected Class<?> getDefaultCaptureActivity() {
-        return CaptureActivity.class;
-    }
-
-    public IntentIntegrator(Activity activity) {
-        this.activity = activity;
-    }
-
-    public Class<?> getCaptureActivity() {
+    fun getCaptureActivity(): Class<*> {
         if (captureActivity == null) {
-            captureActivity = getDefaultCaptureActivity();
+            captureActivity = defaultCaptureActivity
         }
-        return captureActivity;
+        return captureActivity
     }
 
     /**
@@ -112,9 +63,9 @@ public class IntentIntegrator {
      *
      * @param captureActivity the class
      */
-    public IntentIntegrator setCaptureActivity(Class<?> captureActivity) {
-        this.captureActivity = captureActivity;
-        return this;
+    fun setCaptureActivity(captureActivity: Class<*>?): IntentIntegrator {
+        this.captureActivity = captureActivity
+        return this
     }
 
     /**
@@ -124,44 +75,19 @@ public class IntentIntegrator {
      * @param requestCode the new request code
      * @return this
      */
-    public IntentIntegrator setRequestCode(int requestCode) {
-        if (requestCode <= 0 || requestCode > 0x0000ffff) {
-            throw new IllegalArgumentException("requestCode out of range");
-        }
-        this.requestCode = requestCode;
-        return this;
+    fun setRequestCode(requestCode: Int): IntentIntegrator {
+        require(!(requestCode <= 0 || requestCode > 0x0000ffff)) { "requestCode out of range" }
+        this.requestCode = requestCode
+        return this
     }
 
-    /**
-     * @param fragment {@link Fragment} invoking the integration.
-     *                 {@link #startActivityForResult(Intent, int)} will be called on the {@link Fragment} instead
-     *                 of an {@link Activity}
-     */
-    public static IntentIntegrator forSupportFragment(androidx.fragment.app.Fragment fragment) {
-        IntentIntegrator integrator = new IntentIntegrator(fragment.getActivity());
-        integrator.supportFragment = fragment;
-        return integrator;
+    fun getMoreExtras(): Map<String, *> {
+        return moreExtras
     }
 
-    /**
-     * @param fragment {@link Fragment} invoking the integration.
-     *                 {@link #startActivityForResult(Intent, int)} will be called on the {@link Fragment} instead
-     *                 of an {@link Activity}
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static IntentIntegrator forFragment(Fragment fragment) {
-        IntentIntegrator integrator = new IntentIntegrator(fragment.getActivity());
-        integrator.fragment = fragment;
-        return integrator;
-    }
-
-    public Map<String, ?> getMoreExtras() {
-        return moreExtras;
-    }
-
-    public final IntentIntegrator addExtra(String key, Object value) {
-        moreExtras.put(key, value);
-        return this;
+    fun addExtra(key: String, value: Any): IntentIntegrator {
+        moreExtras[key] = value
+        return this
     }
 
     /**
@@ -169,11 +95,11 @@ public class IntentIntegrator {
      *
      * @param prompt the prompt to display
      */
-    public final IntentIntegrator setPrompt(String prompt) {
+    fun setPrompt(prompt: String?): IntentIntegrator {
         if (prompt != null) {
-            addExtra(Intents.Scan.PROMPT_MESSAGE, prompt);
+            addExtra(Intents.Scan.PROMPT_MESSAGE, prompt)
         }
-        return this;
+        return this
     }
 
     /**
@@ -181,9 +107,9 @@ public class IntentIntegrator {
      *
      * @param locked true to lock orientation
      */
-    public IntentIntegrator setOrientationLocked(boolean locked) {
-        addExtra(Intents.Scan.ORIENTATION_LOCKED, locked);
-        return this;
+    fun setOrientationLocked(locked: Boolean): IntentIntegrator {
+        addExtra(Intents.Scan.ORIENTATION_LOCKED, locked)
+        return this
     }
 
     /**
@@ -192,11 +118,11 @@ public class IntentIntegrator {
      * @param cameraId camera ID of the camera to use. A negative value means "no preference".
      * @return this
      */
-    public IntentIntegrator setCameraId(int cameraId) {
+    fun setCameraId(cameraId: Int): IntentIntegrator {
         if (cameraId >= 0) {
-            addExtra(Intents.Scan.CAMERA_ID, cameraId);
+            addExtra(Intents.Scan.CAMERA_ID, cameraId)
         }
-        return this;
+        return this
     }
 
     /**
@@ -205,9 +131,9 @@ public class IntentIntegrator {
      * @param enabled true to enable initial torch
      * @return this
      */
-    public IntentIntegrator setTorchEnabled(boolean enabled) {
-        addExtra(Intents.Scan.TORCH_ENABLED, enabled);
-        return this;
+    fun setTorchEnabled(enabled: Boolean): IntentIntegrator {
+        addExtra(Intents.Scan.TORCH_ENABLED, enabled)
+        return this
     }
 
 
@@ -217,9 +143,9 @@ public class IntentIntegrator {
      * @param enabled false to disable beep
      * @return this
      */
-    public IntentIntegrator setBeepEnabled(boolean enabled) {
-        addExtra(Intents.Scan.BEEP_ENABLED, enabled);
-        return this;
+    fun setBeepEnabled(enabled: Boolean): IntentIntegrator {
+        addExtra(Intents.Scan.BEEP_ENABLED, enabled)
+        return this
     }
 
     /**
@@ -228,38 +154,38 @@ public class IntentIntegrator {
      * @param enabled true to enable barcode image
      * @return this
      */
-    public IntentIntegrator setBarcodeImageEnabled(boolean enabled) {
-        addExtra(Intents.Scan.BARCODE_IMAGE_ENABLED, enabled);
-        return this;
+    fun setBarcodeImageEnabled(enabled: Boolean): IntentIntegrator {
+        addExtra(Intents.Scan.BARCODE_IMAGE_ENABLED, enabled)
+        return this
     }
 
     /**
      * Set the desired barcode formats to scan.
      *
-     * @param desiredBarcodeFormats names of {@code BarcodeFormat}s to scan for
+     * @param desiredBarcodeFormats names of `BarcodeFormat`s to scan for
      * @return this
      */
-    public IntentIntegrator setDesiredBarcodeFormats(Collection<String> desiredBarcodeFormats) {
-        this.desiredBarcodeFormats = desiredBarcodeFormats;
-        return this;
+    fun setDesiredBarcodeFormats(desiredBarcodeFormats: Collection<String>?): IntentIntegrator {
+        this.desiredBarcodeFormats = desiredBarcodeFormats
+        return this
     }
 
     /**
      * Set the desired barcode formats to scan.
      *
-     * @param desiredBarcodeFormats names of {@code BarcodeFormat}s to scan for
+     * @param desiredBarcodeFormats names of `BarcodeFormat`s to scan for
      * @return this
      */
-    public IntentIntegrator setDesiredBarcodeFormats(String... desiredBarcodeFormats) {
-        this.desiredBarcodeFormats = Arrays.asList(desiredBarcodeFormats);
-        return this;
+    fun setDesiredBarcodeFormats(vararg desiredBarcodeFormats: String?): IntentIntegrator {
+        this.desiredBarcodeFormats = Arrays.asList(*desiredBarcodeFormats)
+        return this
     }
 
     /**
      * Initiates a scan for all known barcode types with the default camera.
      */
-    public final void initiateScan() {
-        startActivityForResult(createScanIntent(), requestCode);
+    fun initiateScan() {
+        startActivityForResult(createScanIntent(), requestCode)
     }
 
     /**
@@ -268,9 +194,9 @@ public class IntentIntegrator {
      *
      * @return Activity.RESULT_CANCELED and true on parameter TIMEOUT.
      */
-    public IntentIntegrator setTimeout(long timeout) {
-        addExtra(Intents.Scan.TIMEOUT, timeout);
-        return this;
+    fun setTimeout(timeout: Long): IntentIntegrator {
+        addExtra(Intents.Scan.TIMEOUT, timeout)
+        return this
     }
 
     /**
@@ -278,39 +204,39 @@ public class IntentIntegrator {
      *
      * @return the intent
      */
-    public Intent createScanIntent() {
-        Intent intentScan = new Intent(activity, getCaptureActivity());
-        intentScan.setAction(Intents.Scan.ACTION);
+    fun createScanIntent(): Intent {
+        val intentScan = Intent(activity, getCaptureActivity())
+        intentScan.setAction(Intents.Scan.ACTION)
 
         // check which types of codes to scan for
         if (desiredBarcodeFormats != null) {
             // set the desired barcode types
-            StringBuilder joinedByComma = new StringBuilder();
-            for (String format : desiredBarcodeFormats) {
-                if (joinedByComma.length() > 0) {
-                    joinedByComma.append(',');
+            val joinedByComma = StringBuilder()
+            for (format in desiredBarcodeFormats!!) {
+                if (joinedByComma.length > 0) {
+                    joinedByComma.append(',')
                 }
-                joinedByComma.append(format);
+                joinedByComma.append(format)
             }
-            intentScan.putExtra(Intents.Scan.FORMATS, joinedByComma.toString());
+            intentScan.putExtra(Intents.Scan.FORMATS, joinedByComma.toString())
         }
 
-        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        attachMoreExtras(intentScan);
-        return intentScan;
+        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intentScan.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET)
+        attachMoreExtras(intentScan)
+        return intentScan
     }
 
     /**
      * Initiates a scan, only for a certain set of barcode types, given as strings corresponding
-     * to their names in ZXing's {@code BarcodeFormat} class like "UPC_A". You can supply constants
-     * like {@link #PRODUCT_CODE_TYPES} for example.
+     * to their names in ZXing's `BarcodeFormat` class like "UPC_A". You can supply constants
+     * like [.PRODUCT_CODE_TYPES] for example.
      *
-     * @param desiredBarcodeFormats names of {@code BarcodeFormat}s to scan for
+     * @param desiredBarcodeFormats names of `BarcodeFormat`s to scan for
      */
-    public final void initiateScan(Collection<String> desiredBarcodeFormats) {
-        setDesiredBarcodeFormats(desiredBarcodeFormats);
-        initiateScan();
+    fun initiateScan(desiredBarcodeFormats: Collection<String>?) {
+        setDesiredBarcodeFormats(desiredBarcodeFormats)
+        initiateScan()
     }
 
     /**
@@ -319,114 +245,179 @@ public class IntentIntegrator {
      *
      * @param intent Intent to start.
      * @param code   Request code for the activity
-     * @see android.app.Activity#startActivityForResult(Intent, int)
-     * @see android.app.Fragment#startActivityForResult(Intent, int)
+     * @see android.app.Activity.startActivityForResult
+     * @see android.app.Fragment.startActivityForResult
      */
-    protected void startActivityForResult(Intent intent, int code) {
+    protected fun startActivityForResult(intent: Intent, code: Int) {
         if (fragment != null) {
-            fragment.startActivityForResult(intent, code);
+            fragment!!.startActivityForResult(intent, code)
         } else if (supportFragment != null) {
-            supportFragment.startActivityForResult(intent, code);
+            supportFragment!!.startActivityForResult(intent, code)
         } else {
-            activity.startActivityForResult(intent, code);
+            activity!!.startActivityForResult(intent, code)
         }
     }
 
-    protected void startActivity(Intent intent) {
+    protected fun startActivity(intent: Intent) {
         if (fragment != null) {
-            fragment.startActivity(intent);
+            fragment!!.startActivity(intent)
         } else if (supportFragment != null) {
-            supportFragment.startActivity(intent);
+            supportFragment!!.startActivity(intent)
         } else {
-            activity.startActivity(intent);
+            activity!!.startActivity(intent)
         }
     }
 
-    /**
-     * <p>Call this from your {@link Activity}'s
-     * {@link Activity#onActivityResult(int, int, Intent)} method.</p>
-     * <p>
-     * This checks that the requestCode is equal to the default REQUEST_CODE.
-     *
-     * @param requestCode request code from {@code onActivityResult()}
-     * @param resultCode  result code from {@code onActivityResult()}
-     * @param intent      {@link Intent} from {@code onActivityResult()}
-     * @return null if the event handled here was not related to this class, or
-     * else an {@link IntentResult} containing the result of the scan. If the user cancelled scanning,
-     * the fields will be null.
-     * @deprecated Not compatible with setRequestCode(). Use parseActivityResult(resultCode, intent) instead.
-     */
-    public static IntentResult parseActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REQUEST_CODE) {
-            return parseActivityResult(resultCode, intent);
+    private fun attachMoreExtras(intent: Intent) {
+        for ((key, value) in moreExtras) {
+            // Kind of hacky
+            if (value is Int) {
+                intent.putExtra(key, value)
+            } else if (value is Long) {
+                intent.putExtra(key, value)
+            } else if (value is Boolean) {
+                intent.putExtra(key, value)
+            } else if (value is Double) {
+                intent.putExtra(key, value)
+            } else if (value is Float) {
+                intent.putExtra(key, value)
+            } else if (value is Bundle) {
+                intent.putExtra(key, value)
+            } else if (value is IntArray) {
+                intent.putExtra(key, value)
+            } else if (value is LongArray) {
+                intent.putExtra(key, value)
+            } else if (value is BooleanArray) {
+                intent.putExtra(key, value)
+            } else if (value is DoubleArray) {
+                intent.putExtra(key, value)
+            } else if (value is FloatArray) {
+                intent.putExtra(key, value)
+            } else if (value is Array<*> && value.isArrayOf<String>()) {
+                intent.putExtra(key, value as Array<String?>)
+            } else {
+                intent.putExtra(key, value.toString())
+            }
         }
-        return null;
     }
 
-    /**
-     * Parse activity result, without checking the request code.
-     *
-     * @param resultCode result code from {@code onActivityResult()}
-     * @param intent     {@link Intent} from {@code onActivityResult()}
-     * @return an {@link IntentResult} containing the result of the scan. If the user cancelled scanning,
-     * the fields will be null.
-     */
-    public static IntentResult parseActivityResult(int resultCode, Intent intent) {
-        if (resultCode == Activity.RESULT_OK) {
-            String contents = intent.getStringExtra(Intents.Scan.RESULT);
-            String formatName = intent.getStringExtra(Intents.Scan.RESULT_FORMAT);
-            byte[] rawBytes = intent.getByteArrayExtra(Intents.Scan.RESULT_BYTES);
-            int intentOrientation = intent.getIntExtra(Intents.Scan.RESULT_ORIENTATION, Integer.MIN_VALUE);
-            Integer orientation = intentOrientation == Integer.MIN_VALUE ? null : intentOrientation;
-            String errorCorrectionLevel = intent.getStringExtra(Intents.Scan.RESULT_ERROR_CORRECTION_LEVEL);
-            String barcodeImagePath = intent.getStringExtra(Intents.Scan.RESULT_BARCODE_IMAGE_PATH);
-            return new IntentResult(contents,
+    companion object {
+        const val REQUEST_CODE: Int = 0x0000c0de // Only use bottom 16 bits
+
+        private val TAG: String = IntentIntegrator::class.java.simpleName
+
+
+        // supported barcode formats
+        // Product Codes
+        const val UPC_A: String = "UPC_A"
+        const val UPC_E: String = "UPC_E"
+        const val EAN_8: String = "EAN_8"
+        const val EAN_13: String = "EAN_13"
+        const val RSS_14: String = "RSS_14"
+
+        // Other 1D
+        const val CODE_39: String = "CODE_39"
+        const val CODE_93: String = "CODE_93"
+        const val CODE_128: String = "CODE_128"
+        const val ITF: String = "ITF"
+
+        const val RSS_EXPANDED: String = "RSS_EXPANDED"
+
+        // 2D
+        const val QR_CODE: String = "QR_CODE"
+        const val DATA_MATRIX: String = "DATA_MATRIX"
+        const val PDF_417: String = "PDF_417"
+
+
+        val PRODUCT_CODE_TYPES: Collection<String> = list(UPC_A, UPC_E, EAN_8, EAN_13, RSS_14)
+        val ONE_D_CODE_TYPES: Collection<String> = list(
+            UPC_A, UPC_E, EAN_8, EAN_13, RSS_14, CODE_39, CODE_93, CODE_128,
+            ITF, RSS_14, RSS_EXPANDED
+        )
+
+        val ALL_CODE_TYPES: Collection<String>? = null
+
+        /**
+         * @param fragment [Fragment] invoking the integration.
+         * [.startActivityForResult] will be called on the [Fragment] instead
+         * of an [Activity]
+         */
+        fun forSupportFragment(fragment: androidx.fragment.app.Fragment): IntentIntegrator {
+            val integrator = IntentIntegrator(fragment.activity)
+            integrator.supportFragment = fragment
+            return integrator
+        }
+
+        /**
+         * @param fragment [Fragment] invoking the integration.
+         * [.startActivityForResult] will be called on the [Fragment] instead
+         * of an [Activity]
+         */
+        @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+        fun forFragment(fragment: Fragment): IntentIntegrator {
+            val integrator = IntentIntegrator(fragment.activity)
+            integrator.fragment = fragment
+            return integrator
+        }
+
+        /**
+         *
+         * Call this from your [Activity]'s
+         * [Activity.onActivityResult] method.
+         *
+         *
+         * This checks that the requestCode is equal to the default REQUEST_CODE.
+         *
+         * @param requestCode request code from `onActivityResult()`
+         * @param resultCode  result code from `onActivityResult()`
+         * @param intent      [Intent] from `onActivityResult()`
+         * @return null if the event handled here was not related to this class, or
+         * else an [IntentResult] containing the result of the scan. If the user cancelled scanning,
+         * the fields will be null.
+         */
+        @Deprecated("Not compatible with setRequestCode(). Use parseActivityResult(resultCode, intent) instead.")
+        fun parseActivityResult(requestCode: Int, resultCode: Int, intent: Intent): IntentResult? {
+            if (requestCode == REQUEST_CODE) {
+                return parseActivityResult(resultCode, intent)
+            }
+            return null
+        }
+
+        /**
+         * Parse activity result, without checking the request code.
+         *
+         * @param resultCode result code from `onActivityResult()`
+         * @param intent     [Intent] from `onActivityResult()`
+         * @return an [IntentResult] containing the result of the scan. If the user cancelled scanning,
+         * the fields will be null.
+         */
+        fun parseActivityResult(resultCode: Int, intent: Intent): IntentResult {
+            if (resultCode == Activity.RESULT_OK) {
+                val contents = intent.getStringExtra(Intents.Scan.RESULT)
+                val formatName = intent.getStringExtra(Intents.Scan.RESULT_FORMAT)
+                val rawBytes = intent.getByteArrayExtra(Intents.Scan.RESULT_BYTES)
+                val intentOrientation =
+                    intent.getIntExtra(Intents.Scan.RESULT_ORIENTATION, Int.MIN_VALUE)
+                val orientation =
+                    if (intentOrientation == Int.MIN_VALUE) null else intentOrientation
+                val errorCorrectionLevel =
+                    intent.getStringExtra(Intents.Scan.RESULT_ERROR_CORRECTION_LEVEL)
+                val barcodeImagePath = intent.getStringExtra(Intents.Scan.RESULT_BARCODE_IMAGE_PATH)
+                return IntentResult(
+                    contents,
                     formatName,
                     rawBytes,
                     orientation,
                     errorCorrectionLevel,
                     barcodeImagePath,
-                    intent);
-        }
-        return new IntentResult(intent);
-    }
-
-    private static List<String> list(String... values) {
-        return Collections.unmodifiableList(Arrays.asList(values));
-    }
-
-    private void attachMoreExtras(Intent intent) {
-        for (Map.Entry<String, Object> entry : moreExtras.entrySet()) {
-            String key = entry.getKey();
-            Object value = entry.getValue();
-            // Kind of hacky
-            if (value instanceof Integer) {
-                intent.putExtra(key, (Integer) value);
-            } else if (value instanceof Long) {
-                intent.putExtra(key, (Long) value);
-            } else if (value instanceof Boolean) {
-                intent.putExtra(key, (Boolean) value);
-            } else if (value instanceof Double) {
-                intent.putExtra(key, (Double) value);
-            } else if (value instanceof Float) {
-                intent.putExtra(key, (Float) value);
-            } else if (value instanceof Bundle) {
-                intent.putExtra(key, (Bundle) value);
-            } else if (value instanceof int[]) {
-                intent.putExtra(key, (int[]) value);
-            } else if (value instanceof long[]) {
-                intent.putExtra(key, (long[]) value);
-            } else if (value instanceof boolean[]) {
-                intent.putExtra(key, (boolean[]) value);
-            } else if (value instanceof double[]) {
-                intent.putExtra(key, (double[]) value);
-            } else if (value instanceof float[]) {
-                intent.putExtra(key, (float[]) value);
-            } else if (value instanceof String[]) {
-                intent.putExtra(key, (String[]) value);
-            } else {
-                intent.putExtra(key, value.toString());
+                    intent
+                )
             }
+            return IntentResult(intent)
+        }
+
+        private fun list(vararg values: String): List<String> {
+            return Collections.unmodifiableList(Arrays.asList(*values))
         }
     }
 }

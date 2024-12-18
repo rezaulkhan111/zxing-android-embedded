@@ -1,26 +1,24 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import com.google.zxing.BinaryBitmap;
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.Reader;
-import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.LuminanceSource
+import com.google.zxing.Reader
+import com.google.zxing.common.HybridBinarizer
 
 /**
  * Decoder that performs alternating scans in normal mode and inverted mode.
  */
-public class MixedDecoder extends Decoder {
-    private boolean isInverted = true;
-
-    /**
-     * Create a new Decoder with the specified Reader.
-     * <p/>
-     * It is recommended to use an instance of MultiFormatReader in most cases.
-     *
-     * @param reader the reader
-     */
-    public MixedDecoder(Reader reader) {
-        super(reader);
-    }
+class MixedDecoder
+/**
+ * Create a new Decoder with the specified Reader.
+ *
+ *
+ * It is recommended to use an instance of MultiFormatReader in most cases.
+ *
+ * @param reader the reader
+ */
+    (reader: Reader) : Decoder(reader) {
+    private var isInverted = true
 
     /**
      * Given an image source, convert to a binary bitmap.
@@ -30,13 +28,13 @@ public class MixedDecoder extends Decoder {
      * @param source the image source
      * @return a BinaryBitmap
      */
-    protected BinaryBitmap toBitmap(LuminanceSource source) {
+    override fun toBitmap(source: LuminanceSource): BinaryBitmap? {
         if (isInverted) {
-            isInverted = false;
-            return new BinaryBitmap(new HybridBinarizer(source.invert()));
+            isInverted = false
+            return BinaryBitmap(HybridBinarizer(source.invert()))
         } else {
-            isInverted = true;
-            return new BinaryBitmap(new HybridBinarizer(source));
+            isInverted = true
+            return BinaryBitmap(HybridBinarizer(source))
         }
     }
 }

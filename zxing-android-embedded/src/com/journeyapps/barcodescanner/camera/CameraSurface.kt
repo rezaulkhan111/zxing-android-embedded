@@ -1,48 +1,37 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
-import android.os.Build;
-import android.view.SurfaceHolder;
-
-import java.io.IOException;
+import android.graphics.SurfaceTexture
+import android.hardware.Camera
+import android.view.SurfaceHolder
+import java.io.IOException
 
 /**
  * A surface on which a camera preview is displayed.
  *
  * This wraps either a SurfaceHolder or a SurfaceTexture.
  */
-public class CameraSurface {
-    private SurfaceHolder surfaceHolder;
-    private SurfaceTexture surfaceTexture;
+class CameraSurface {
+    var surfaceHolder: SurfaceHolder? = null
+        private set
+    var surfaceTexture: SurfaceTexture? = null
+        private set
 
-    public CameraSurface(SurfaceHolder surfaceHolder) {
-        if (surfaceHolder == null) {
-            throw new IllegalArgumentException("surfaceHolder may not be null");
-        }
-        this.surfaceHolder = surfaceHolder;
+    constructor(surfaceHolder: SurfaceHolder) {
+        requireNotNull(surfaceHolder) { "surfaceHolder may not be null" }
+        this.surfaceHolder = surfaceHolder
     }
 
-    public CameraSurface(SurfaceTexture surfaceTexture) {
-        if (surfaceTexture == null) {
-            throw new IllegalArgumentException("surfaceTexture may not be null");
-        }
-        this.surfaceTexture = surfaceTexture;
+    constructor(surfaceTexture: SurfaceTexture) {
+        requireNotNull(surfaceTexture) { "surfaceTexture may not be null" }
+        this.surfaceTexture = surfaceTexture
     }
 
-    public SurfaceHolder getSurfaceHolder() {
-        return surfaceHolder;
-    }
-
-    public SurfaceTexture getSurfaceTexture() {
-        return surfaceTexture;
-    }
-
-    public void setPreview(Camera camera) throws IOException {
+    @Throws(IOException::class)
+    fun setPreview(camera: Camera) {
         if (surfaceHolder != null) {
-            camera.setPreviewDisplay(surfaceHolder);
+            camera.setPreviewDisplay(surfaceHolder)
         } else {
-            camera.setPreviewTexture(surfaceTexture);
+            camera.setPreviewTexture(surfaceTexture)
         }
     }
 }

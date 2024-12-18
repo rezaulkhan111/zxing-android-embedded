@@ -1,90 +1,87 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.util.Log;
-import android.view.KeyEvent;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.gson.Gson;
-import com.google.zxing.client.android.R;
+import android.os.Bundle
+import android.view.KeyEvent
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.gson.Gson
+import com.google.zxing.client.android.R
 
 /**
  *
  */
-public class CaptureActivity extends AppCompatActivity implements BSCallBack {
-    private CaptureManager capture;
-    private DecoratedBarcodeView barcodeScannerView;
+open class CaptureActivity : AppCompatActivity(), BSCallBack {
+    private var capture: CaptureManager? = null
+    private var barcodeScannerView: DecoratedBarcodeView? = null
 
-    private CustomDataModel mCustomDataModel;
+    private var mCustomDataModel: CustomDataModel? = null
 
-    private ImageView ivOrderProduct;
-    private TextView tvOrderProductName;
-    private TextView tvOrderProductWeight;
-    private TextView tvToolbarTitle;
+    private var ivOrderProduct: ImageView? = null
+    private var tvOrderProductName: TextView? = null
+    private var tvOrderProductWeight: TextView? = null
+    private var tvToolbarTitle: TextView? = null
 
-    private BarcodeScanBSF bsBarcodeScan;
+    private var bsBarcodeScan: BarcodeScanBSF? = null
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-        barcodeScannerView = initializeContent();
-        initUi();
+        barcodeScannerView = initializeContent()
+        initUi()
 
-        capture = new CaptureManager(this, barcodeScannerView);
-        capture.initializeFromIntent(getIntent(), savedInstanceState);
-        capture.decode();
+        capture = CaptureManager(this, barcodeScannerView!!)
+        capture!!.initializeFromIntent(intent, savedInstanceState)
+        capture!!.decode()
 
-        String customDataValue;
+        val customDataValue: String
 
-        Bundle mExtra = getIntent().getExtras();
+        val mExtra = intent.extras
         if (mExtra != null) {
-            customDataValue = mExtra.getString(Util.dataTransfer_Key);
+            customDataValue = mExtra.getString(Util.dataTransfer_Key)
 
-            if (customDataValue != null && customDataValue != "") {
-                mCustomDataModel = new Gson().fromJson(customDataValue, CustomDataModel.class);
-                initUiFunction();
-                bsBarcodeScan = new BarcodeScanBSF(mCustomDataModel, this);
+            if (customDataValue != null && customDataValue !== "") {
+                mCustomDataModel = Gson().fromJson(customDataValue, CustomDataModel::class.java)
+                initUiFunction()
+                bsBarcodeScan = BarcodeScanBSF(mCustomDataModel, this)
             }
         }
     }
 
-    private void initUi() {
-        tvToolbarTitle = findViewById(R.id.title);
-        ImageView ivClose = findViewById(R.id.back);
+    private fun initUi() {
+        tvToolbarTitle = findViewById(R.id.title)
+        val ivClose = findViewById<ImageView>(R.id.back)
 
-        ivOrderProduct = findViewById(R.id.ivOrderProduct);
-        tvOrderProductName = findViewById(R.id.tvOrderProductName);
-        tvOrderProductWeight = findViewById(R.id.tvOrderProductWeight);
-        TextView tvCantScanBarcode = findViewById(R.id.tvCantScanBarcode);
+        ivOrderProduct = findViewById(R.id.ivOrderProduct)
+        tvOrderProductName = findViewById(R.id.tvOrderProductName)
+        tvOrderProductWeight = findViewById(R.id.tvOrderProductWeight)
+        val tvCantScanBarcode = findViewById<TextView>(R.id.tvCantScanBarcode)
 
-        tvCantScanBarcode.setOnClickListener(v -> {
-            bottomSheetOpenClose(bsBarcodeScan);
-        });
+        tvCantScanBarcode.setOnClickListener { v: View? ->
+            bottomSheetOpenClose(
+                bsBarcodeScan!!
+            )
+        }
 
-        ivClose.setOnClickListener(v -> {
-            finish();
-        });
+        ivClose.setOnClickListener { v: View? ->
+            finish()
+        }
     }
 
-    private void initUiFunction() {
-        tvToolbarTitle.setText(mCustomDataModel.toolbarTitle);
-        ivOrderProduct.setImageBitmap(mCustomDataModel.productImage);
-        tvOrderProductName.setText(mCustomDataModel.productName);
-        tvOrderProductWeight.setText(mCustomDataModel.productQuantity);
+    private fun initUiFunction() {
+        tvToolbarTitle!!.text = mCustomDataModel!!.toolbarTitle
+        ivOrderProduct!!.setImageBitmap(mCustomDataModel!!.productImage)
+        tvOrderProductName!!.text = mCustomDataModel!!.productName
+        tvOrderProductWeight!!.text = mCustomDataModel!!.productQuantity
     }
 
-    private void bottomSheetOpenClose(BottomSheetDialogFragment bottomSheetObj) {
-        if (!bottomSheetObj.isVisible()) {
-            bottomSheetObj.show(getSupportFragmentManager(), "BarcodeScan");
+    private fun bottomSheetOpenClose(bottomSheetObj: BottomSheetDialogFragment) {
+        if (!bottomSheetObj.isVisible) {
+            bottomSheetObj.show(supportFragmentManager, "BarcodeScan")
         } else {
-            bottomSheetObj.dismiss();
+            bottomSheetObj.dismiss()
         }
     }
 
@@ -93,48 +90,45 @@ public class CaptureActivity extends AppCompatActivity implements BSCallBack {
      *
      * @return the DecoratedBarcodeView
      */
-    protected DecoratedBarcodeView initializeContent() {
-        setContentView(R.layout.zxing_capture);
-        return (DecoratedBarcodeView) findViewById(R.id.zxing_barcode_scanner);
+    protected open fun initializeContent(): DecoratedBarcodeView? {
+        setContentView(R.layout.zxing_capture)
+        return findViewById<View>(R.id.zxing_barcode_scanner) as DecoratedBarcodeView
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        capture.onResume();
+    override fun onResume() {
+        super.onResume()
+        capture!!.onResume()
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        capture.onPause();
+    override fun onPause() {
+        super.onPause()
+        capture!!.onPause()
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        capture.onDestroy();
+    override fun onDestroy() {
+        super.onDestroy()
+        capture!!.onDestroy()
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        capture.onSaveInstanceState(outState);
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        capture!!.onSaveInstanceState(outState)
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        capture.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        capture!!.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return barcodeScannerView.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event);
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        return barcodeScannerView!!.onKeyDown(keyCode, event) || super.onKeyDown(keyCode, event)
     }
 
-    @Override
-    public void onCloseScanActivity() {
-        finish();
+    override fun onCloseScanActivity() {
+        finish()
     }
 }

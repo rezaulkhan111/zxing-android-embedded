@@ -1,71 +1,39 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.graphics.Rect;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Message;
-import android.util.Log;
-
-import com.google.zxing.LuminanceSource;
-import com.google.zxing.Result;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.R;
-import com.journeyapps.barcodescanner.camera.CameraInstance;
-import com.journeyapps.barcodescanner.camera.PreviewCallback;
-
-import java.util.List;
+import android.graphics.Rect
+import android.os.Bundle
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Message
+import android.util.Log
+import com.google.zxing.LuminanceSource
+import com.google.zxing.Result
+import com.google.zxing.client.android.R
+import com.journeyapps.barcodescanner.Util.validateMainThread
+import com.journeyapps.barcodescanner.camera.CameraInstance
+import com.journeyapps.barcodescanner.camera.PreviewCallback
 
 /**
  *
  */
-public class DecoderThread {
-    private static final String TAG = DecoderThread.class.getSimpleName();
+class DecoderThread(cameraInstance: CameraInstance, decoder: Decoder, resultHandler: Handler?) {
+    private val cameraInstance: CameraInstance
+    private var thread: HandlerThread? = null
+    private var handler: Handler? = null
+    var decoder: Decoder
+    private val resultHandler: Handler?
+    var cropRect: Rect? = null
+    private var running = false
+    private val LOCK = Any()
 
-    private CameraInstance cameraInstance;
-    private HandlerThread thread;
-    private Handler handler;
-    private Decoder decoder;
-    private Handler resultHandler;
-    private Rect cropRect;
-    private boolean running = false;
-    private final Object LOCK = new Object();
-
-    private final Handler.Callback callback = new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            if (message.what == R.id.zxing_decode) {
-                decode((SourceData) message.obj);
-            } else if (message.what == R.id.zxing_preview_failed) {
-                // Error already logged. Try again.
-                requestNextPreview();
-            }
-            return true;
+    private val callback = Handler.Callback { message ->
+        if (message.what == R.id.zxing_decode) {
+            decode(message.obj as SourceData)
+        } else if (message.what == R.id.zxing_preview_failed) {
+            // Error already logged. Try again.
+            requestNextPreview()
         }
-    };
-
-    public DecoderThread(CameraInstance cameraInstance, Decoder decoder, Handler resultHandler) {
-        Util.validateMainThread();
-
-        this.cameraInstance = cameraInstance;
-        this.decoder = decoder;
-        this.resultHandler = resultHandler;
-    }
-
-    public Decoder getDecoder() {
-        return decoder;
-    }
-
-    public void setDecoder(Decoder decoder) {
-        this.decoder = decoder;
-    }
-
-    public Rect getCropRect() {
-        return cropRect;
-    }
-
-    public void setCropRect(Rect cropRect) {
-        this.cropRect = cropRect;
+        true
     }
 
     /**
@@ -73,14 +41,14 @@ public class DecoderThread {
      *
      * This must be called from the UI thread.
      */
-    public void start() {
-        Util.validateMainThread();
+    fun start() {
+        validateMainThread()
 
-        thread = new HandlerThread(TAG);
-        thread.start();
-        handler = new Handler(thread.getLooper(), callback);
-        running = true;
-        requestNextPreview();
+        thread = HandlerThread(TAG)
+        thread!!.start()
+        handler = Handler(thread!!.looper, callback)
+        running = true
+        requestNextPreview()
     }
 
     /**
@@ -88,86 +56,100 @@ public class DecoderThread {
      *
      * This must be called from the UI thread.
      */
-    public void stop() {
-        Util.validateMainThread();
+    fun stop() {
+        validateMainThread()
 
-        synchronized (LOCK) {
-            running = false;
-            handler.removeCallbacksAndMessages(null);
-            thread.quit();
+        synchronized(LOCK) {
+            running = false
+            handler!!.removeCallbacksAndMessages(null)
+            thread!!.quit()
         }
     }
 
-    private final PreviewCallback previewCallback = new PreviewCallback() {
-        @Override
-        public void onPreview(SourceData sourceData) {
+    private val previewCallback: PreviewCallback = object : PreviewCallback {
+        override fun onPreview(sourceData: SourceData?) {
             // Only post if running, to prevent a warning like this:
             //   java.lang.RuntimeException: Handler (android.os.Handler) sending message to a Handler on a dead thread
 
             // synchronize to handle cases where this is called concurrently with stop()
-            synchronized (LOCK) {
+
+            synchronized(LOCK) {
                 if (running) {
                     // Post to our thread.
-                    handler.obtainMessage(R.id.zxing_decode, sourceData).sendToTarget();
+                    handler!!.obtainMessage(R.id.zxing_decode, sourceData).sendToTarget()
                 }
             }
         }
 
-        @Override
-        public void onPreviewError(Exception e) {
-            synchronized (LOCK) {
+        override fun onPreviewError(e: Exception?) {
+            synchronized(LOCK) {
                 if (running) {
                     // Post to our thread.
-                    handler.obtainMessage(R.id.zxing_preview_failed).sendToTarget();
+                    handler!!.obtainMessage(R.id.zxing_preview_failed).sendToTarget()
                 }
             }
         }
-    };
-
-    private void requestNextPreview() {
-        cameraInstance.requestPreview(previewCallback);
     }
 
-    protected LuminanceSource createSource(SourceData sourceData) {
-        if (this.cropRect == null) {
-            return null;
+    init {
+        validateMainThread()
+
+        this.cameraInstance = cameraInstance
+        this.decoder = decoder
+        this.resultHandler = resultHandler
+    }
+
+    private fun requestNextPreview() {
+        cameraInstance.requestPreview(previewCallback)
+    }
+
+    protected fun createSource(sourceData: SourceData): LuminanceSource? {
+        return if (this.cropRect == null) {
+            null
         } else {
-            return sourceData.createSource();
+            sourceData.createSource()
         }
     }
 
-    private void decode(SourceData sourceData) {
-        long start = System.currentTimeMillis();
-        Result rawResult = null;
-        sourceData.setCropRect(cropRect);
-        LuminanceSource source = createSource(sourceData);
+    private fun decode(sourceData: SourceData) {
+        val start = System.currentTimeMillis()
+        var rawResult: Result? = null
+        sourceData.cropRect = cropRect
+        val source = createSource(sourceData)
 
         if (source != null) {
-            rawResult = decoder.decode(source);
+            rawResult = decoder.decode(source)
         }
 
         if (rawResult != null) {
             // Don't log the barcode contents for security.
-            long end = System.currentTimeMillis();
-            Log.d(TAG, "Found barcode in " + (end - start) + " ms");
+            val end = System.currentTimeMillis()
+            Log.d(TAG, "Found barcode in " + (end - start) + " ms")
             if (resultHandler != null) {
-                BarcodeResult barcodeResult = new BarcodeResult(rawResult, sourceData);
-                Message message = Message.obtain(resultHandler, R.id.zxing_decode_succeeded, barcodeResult);
-                Bundle bundle = new Bundle();
-                message.setData(bundle);
-                message.sendToTarget();
+                val barcodeResult = BarcodeResult(rawResult, sourceData)
+                val message =
+                    Message.obtain(resultHandler, R.id.zxing_decode_succeeded, barcodeResult)
+                val bundle = Bundle()
+                message.data = bundle
+                message.sendToTarget()
             }
         } else {
             if (resultHandler != null) {
-                Message message = Message.obtain(resultHandler, R.id.zxing_decode_failed);
-                message.sendToTarget();
+                val message = Message.obtain(resultHandler, R.id.zxing_decode_failed)
+                message.sendToTarget()
             }
         }
         if (resultHandler != null) {
-            List<ResultPoint> resultPoints = BarcodeResult.transformResultPoints(decoder.getPossibleResultPoints(), sourceData);
-                    Message message = Message.obtain(resultHandler, R.id.zxing_possible_result_points, resultPoints);
-            message.sendToTarget();
+            val resultPoints =
+                BarcodeResult.transformResultPoints(decoder.getPossibleResultPoints(), sourceData)
+            val message =
+                Message.obtain(resultHandler, R.id.zxing_possible_result_points, resultPoints)
+            message.sendToTarget()
         }
-        requestNextPreview();
+        requestNextPreview()
+    }
+
+    companion object {
+        private val TAG: String = DecoderThread::class.java.simpleName
     }
 }

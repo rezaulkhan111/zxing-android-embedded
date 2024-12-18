@@ -13,103 +13,100 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.zxing.client.android
 
-package com.google.zxing.client.android;
-
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.BatteryManager;
-import android.os.Handler;
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
+import android.os.Handler
 
 /**
  * Finishes an context after a period of inactivity if the device is on battery power.
  */
-public final class InactivityTimer {
+class InactivityTimer(private val context: Context, private val callback: Runnable) {
+    private val powerStatusReceiver: BroadcastReceiver
+    private var registered = false
+    private val handler: Handler
+    private var onBattery = false
 
-    private static final String TAG = InactivityTimer.class.getSimpleName();
-
-    private static final long INACTIVITY_DELAY_MS = 5 * 60 * 1000L;
-
-    private final Context context;
-    private final BroadcastReceiver powerStatusReceiver;
-    private boolean registered = false;
-    private Handler handler;
-    private Runnable callback;
-    private boolean onBattery;
-
-    public InactivityTimer(Context context, Runnable callback) {
-        this.context = context;
-        this.callback = callback;
-
-        powerStatusReceiver = new PowerStatusReceiver();
-        handler = new Handler();
+    init {
+        powerStatusReceiver = PowerStatusReceiver()
+        handler = Handler()
     }
 
     /**
      * Trigger activity, resetting the timer.
      */
-    public void activity() {
-        cancelCallback();
+    fun activity() {
+        cancelCallback()
         if (onBattery) {
-            handler.postDelayed(callback, INACTIVITY_DELAY_MS);
+            handler.postDelayed(callback, INACTIVITY_DELAY_MS)
         }
     }
 
     /**
      * Start the activity timer.
      */
-    public void start() {
-        registerReceiver();
-        activity();
+    fun start() {
+        registerReceiver()
+        activity()
     }
 
     /**
      * Cancel the activity timer.
      */
-    public void cancel() {
-        cancelCallback();
-        unregisterReceiver();
+    fun cancel() {
+        cancelCallback()
+        unregisterReceiver()
     }
 
-    private void unregisterReceiver() {
+    private fun unregisterReceiver() {
         if (registered) {
-            context.unregisterReceiver(powerStatusReceiver);
-            registered = false;
+            context.unregisterReceiver(powerStatusReceiver)
+            registered = false
         }
     }
 
-    private void registerReceiver() {
+    private fun registerReceiver() {
         if (!registered) {
-            context.registerReceiver(powerStatusReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-            registered = true;
+            context.registerReceiver(
+                powerStatusReceiver,
+                IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+            registered = true
         }
     }
 
-    private void cancelCallback() {
-        handler.removeCallbacksAndMessages(null);
+    private fun cancelCallback() {
+        handler.removeCallbacksAndMessages(null)
     }
 
-    private void onBattery(boolean onBattery) {
-        this.onBattery = onBattery;
+    private fun onBattery(onBattery: Boolean) {
+        this.onBattery = onBattery
 
         // To make sure we're still running
         if (registered) {
             // This will either cancel or reschedule, depending on the battery status.
-            activity();
+            activity()
         }
     }
 
-    private final class PowerStatusReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
+    private inner class PowerStatusReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (Intent.ACTION_BATTERY_CHANGED == intent.action) {
                 // 0 indicates that we're on battery
-                final boolean onBatteryNow = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) <= 0;
+                val onBatteryNow = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1) <= 0
                 // post on handler to run in main thread
-                handler.post(() -> onBattery(onBatteryNow));
+                handler.post { onBattery(onBatteryNow) }
             }
         }
+    }
+
+    companion object {
+        private val TAG: String = InactivityTimer::class.java.simpleName
+
+        private const val INACTIVITY_DELAY_MS = 5 * 60 * 1000L
     }
 }

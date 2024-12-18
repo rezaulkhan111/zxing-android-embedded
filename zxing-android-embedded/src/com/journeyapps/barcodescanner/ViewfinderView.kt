@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.journeyapps.barcodescanner
 
-package com.journeyapps.barcodescanner;
-
-import android.content.Context;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.util.AttributeSet;
-import android.view.View;
-
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.R;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Rect
+import android.util.AttributeSet
+import android.view.View
+import com.google.zxing.ResultPoint
+import com.google.zxing.client.android.R
+import com.journeyapps.barcodescanner.CameraPreview.StateListener
 
 /**
  * This view is overlaid on top of the camera preview. It adds the viewfinder rectangle and partial
@@ -38,195 +32,203 @@ import java.util.List;
  *
  * @author dswitkin@google.com (Daniel Switkin)
  */
-public class ViewfinderView extends View {
-    protected static final String TAG = ViewfinderView.class.getSimpleName();
-
-    protected static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
-    protected static final long ANIMATION_DELAY = 80L;
-    protected static final int CURRENT_POINT_OPACITY = 0xA0;
-    protected static final int MAX_RESULT_POINTS = 20;
-    protected static final int POINT_SIZE = 6;
-
-    protected final Paint paint;
-    protected Bitmap resultBitmap;
-    protected int maskColor;
-    protected final int resultColor;
-    protected final int laserColor;
-    protected final int resultPointColor;
-    protected boolean laserVisibility;
-    protected int scannerAlpha;
-    protected List<ResultPoint> possibleResultPoints;
-    protected List<ResultPoint> lastPossibleResultPoints;
-    protected CameraPreview cameraPreview;
+class ViewfinderView(context: Context?, attrs: AttributeSet?) :
+    View(context, attrs) {
+    // Initialize these once for performance rather than calling them every time in onDraw().
+    protected val paint: Paint =
+        Paint(Paint.ANTI_ALIAS_FLAG)
+    protected var resultBitmap: Bitmap? = null
+    protected var maskColor: Int
+    protected val resultColor: Int
+    protected val laserColor: Int
+    protected val resultPointColor: Int
+    protected var laserVisibility: Boolean
+    protected var scannerAlpha: Int
+    protected var possibleResultPoints: MutableList<ResultPoint>
+    protected var lastPossibleResultPoints: MutableList<ResultPoint>
+    protected var cameraPreview: CameraPreview? = null
 
     // Cache the framingRect and previewSize, so that we can still draw it after the preview
     // stopped.
-    protected Rect framingRect;
-    protected Size previewSize;
+    protected var framingRect: Rect? = null
+    protected var previewSize: Size? = null
 
     // This constructor is used when the class is built from an XML resource.
-    public ViewfinderView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-
-        // Initialize these once for performance rather than calling them every time in onDraw().
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        Resources resources = getResources();
+    init {
+        val resources = resources
 
         // Get set attributes on view
-        TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.zxing_finder);
+        val attributes = getContext().obtainStyledAttributes(attrs, R.styleable.zxing_finder)
 
-        this.maskColor = attributes.getColor(R.styleable.zxing_finder_zxing_viewfinder_mask,
-                resources.getColor(R.color.zxing_viewfinder_mask));
-        this.resultColor = attributes.getColor(R.styleable.zxing_finder_zxing_result_view,
-                resources.getColor(R.color.zxing_result_view));
-        this.laserColor = attributes.getColor(R.styleable.zxing_finder_zxing_viewfinder_laser,
-                resources.getColor(R.color.zxing_viewfinder_laser));
-        this.resultPointColor = attributes.getColor(R.styleable.zxing_finder_zxing_possible_result_points,
-                resources.getColor(R.color.zxing_possible_result_points));
-        this.laserVisibility = attributes.getBoolean(R.styleable.zxing_finder_zxing_viewfinder_laser_visibility,
-                true);
+        this.maskColor = attributes.getColor(
+            R.styleable.zxing_finder_zxing_viewfinder_mask,
+            resources.getColor(R.color.zxing_viewfinder_mask)
+        )
+        this.resultColor = attributes.getColor(
+            R.styleable.zxing_finder_zxing_result_view,
+            resources.getColor(R.color.zxing_result_view)
+        )
+        this.laserColor = attributes.getColor(
+            R.styleable.zxing_finder_zxing_viewfinder_laser,
+            resources.getColor(R.color.zxing_viewfinder_laser)
+        )
+        this.resultPointColor = attributes.getColor(
+            R.styleable.zxing_finder_zxing_possible_result_points,
+            resources.getColor(R.color.zxing_possible_result_points)
+        )
+        this.laserVisibility = attributes.getBoolean(
+            R.styleable.zxing_finder_zxing_viewfinder_laser_visibility,
+            true
+        )
 
-        attributes.recycle();
+        attributes.recycle()
 
-        scannerAlpha = 0;
-        possibleResultPoints = new ArrayList<>(MAX_RESULT_POINTS);
-        lastPossibleResultPoints = new ArrayList<>(MAX_RESULT_POINTS);
+        scannerAlpha = 0
+        possibleResultPoints = ArrayList(MAX_RESULT_POINTS)
+        lastPossibleResultPoints = ArrayList(MAX_RESULT_POINTS)
     }
 
-    public void setCameraPreview(CameraPreview view) {
-        this.cameraPreview = view;
-        view.addStateListener(new CameraPreview.StateListener() {
-            @Override
-            public void previewSized() {
-                refreshSizes();
-                invalidate();
+    fun setCameraPreview(view: CameraPreview) {
+        this.cameraPreview = view
+        view.addStateListener(object : StateListener {
+            override fun previewSized() {
+                refreshSizes()
+                invalidate()
             }
 
-            @Override
-            public void previewStarted() {
-
+            override fun previewStarted() {
             }
 
-            @Override
-            public void previewStopped() {
-
+            override fun previewStopped() {
             }
 
-            @Override
-            public void cameraError(Exception error) {
-
+            override fun cameraError(error: Exception?) {
             }
 
-            @Override
-            public void cameraClosed() {
-
+            override fun cameraClosed() {
             }
-        });
+        })
     }
 
-    protected void refreshSizes() {
+    protected fun refreshSizes() {
         if (cameraPreview == null) {
-            return;
+            return
         }
-        Rect framingRect = cameraPreview.getFramingRect();
-        Size previewSize = cameraPreview.getPreviewSize();
+        val framingRect = cameraPreview!!.framingRect
+        val previewSize = cameraPreview!!.previewSize
         if (framingRect != null && previewSize != null) {
-            this.framingRect = framingRect;
-            this.previewSize = previewSize;
+            this.framingRect = framingRect
+            this.previewSize = previewSize
         }
     }
 
-    @Override
-    public void onDraw(Canvas canvas) {
-        refreshSizes();
+    public override fun onDraw(canvas: Canvas) {
+        refreshSizes()
         if (framingRect == null || previewSize == null) {
-            return;
+            return
         }
 
-        final Rect frame = framingRect;
-        final Size previewSize = this.previewSize;
+        val frame: Rect = framingRect as Rect
+        val previewSize = previewSize!!
 
-        final int width = getWidth();
-        final int height = getHeight();
+        val width = width
+        val height = height
 
         // Draw the exterior (i.e. outside the framing rect) darkened
-        paint.setColor(resultBitmap != null ? resultColor : maskColor);
-        canvas.drawRect(0, 0, width, frame.top, paint);
-        canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-        canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-        canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+        paint.color = if (resultBitmap != null) resultColor else maskColor
+        canvas.drawRect(0f, 0f, width.toFloat(), frame.top.toFloat(), paint)
+        canvas.drawRect(
+            0f,
+            frame.top.toFloat(),
+            frame.left.toFloat(),
+            (frame.bottom + 1).toFloat(),
+            paint
+        )
+        canvas.drawRect(
+            (frame.right + 1).toFloat(),
+            frame.top.toFloat(),
+            width.toFloat(),
+            (frame.bottom + 1).toFloat(),
+            paint
+        )
+        canvas.drawRect(0f, (frame.bottom + 1).toFloat(), width.toFloat(), height.toFloat(), paint)
 
         if (resultBitmap != null) {
             // Draw the opaque result bitmap over the scanning rectangle
-            paint.setAlpha(CURRENT_POINT_OPACITY);
-            canvas.drawBitmap(resultBitmap, null, frame, paint);
+            paint.alpha = CURRENT_POINT_OPACITY
+            canvas.drawBitmap(resultBitmap!!, null, frame, paint)
         } else {
             // If wanted, draw a red "laser scanner" line through the middle to show decoding is active
             if (laserVisibility) {
-                paint.setColor(laserColor);
+                paint.color = laserColor
 
-                paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
-                scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
+                paint.alpha = SCANNER_ALPHA[scannerAlpha]
+                scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.size
 
-                final int middle = frame.height() / 2 + frame.top;
-                canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1, middle + 2, paint);
+                val middle = frame.height() / 2 + frame.top
+                canvas.drawRect(
+                    (frame.left + 2).toFloat(),
+                    (middle - 1).toFloat(),
+                    (frame.right - 1).toFloat(),
+                    (middle + 2).toFloat(),
+                    paint
+                )
             }
 
-            final float scaleX = this.getWidth() / (float) previewSize.width;
-            final float scaleY = this.getHeight() / (float) previewSize.height;
+            val scaleX = this.width / previewSize.width.toFloat()
+            val scaleY = this.height / previewSize.height.toFloat()
 
             // draw the last possible result points
             if (!lastPossibleResultPoints.isEmpty()) {
-                paint.setAlpha(CURRENT_POINT_OPACITY / 2);
-                paint.setColor(resultPointColor);
-                float radius = POINT_SIZE / 2.0f;
-                for (final ResultPoint point : lastPossibleResultPoints) {
+                paint.alpha = CURRENT_POINT_OPACITY / 2
+                paint.color = resultPointColor
+                val radius = POINT_SIZE / 2.0f
+                for (point in lastPossibleResultPoints) {
                     canvas.drawCircle(
-                            (int) (point.getX() * scaleX),
-                            (int) (point.getY() * scaleY),
-                            radius, paint
-                    );
+                        (point.x * scaleX).toInt().toFloat(),
+                        (point.y * scaleY).toInt().toFloat(),
+                        radius, paint
+                    )
                 }
-                lastPossibleResultPoints.clear();
+                lastPossibleResultPoints.clear()
             }
 
             // draw current possible result points
             if (!possibleResultPoints.isEmpty()) {
-                paint.setAlpha(CURRENT_POINT_OPACITY);
-                paint.setColor(resultPointColor);
-                for (final ResultPoint point : possibleResultPoints) {
+                paint.alpha = CURRENT_POINT_OPACITY
+                paint.color = resultPointColor
+                for (point in possibleResultPoints) {
                     canvas.drawCircle(
-                            (int) (point.getX() * scaleX),
-                            (int) (point.getY() * scaleY),
-                            POINT_SIZE, paint
-                    );
+                        (point.x * scaleX).toInt().toFloat(),
+                        (point.y * scaleY).toInt().toFloat(),
+                        POINT_SIZE.toFloat(), paint
+                    )
                 }
 
                 // swap and clear buffers
-                final List<ResultPoint> temp = possibleResultPoints;
-                possibleResultPoints = lastPossibleResultPoints;
-                lastPossibleResultPoints = temp;
-                possibleResultPoints.clear();
+                val temp = possibleResultPoints
+                possibleResultPoints = lastPossibleResultPoints
+                lastPossibleResultPoints = temp
+                possibleResultPoints.clear()
             }
 
             // Request another update at the animation interval, but only repaint the laser line,
             // not the entire viewfinder mask.
-            postInvalidateDelayed(ANIMATION_DELAY,
-                    frame.left - POINT_SIZE,
-                    frame.top - POINT_SIZE,
-                    frame.right + POINT_SIZE,
-                    frame.bottom + POINT_SIZE);
+            postInvalidateDelayed(
+                ANIMATION_DELAY,
+                frame.left - POINT_SIZE,
+                frame.top - POINT_SIZE,
+                frame.right + POINT_SIZE,
+                frame.bottom + POINT_SIZE
+            )
         }
     }
 
-    public void drawViewfinder() {
-        Bitmap resultBitmap = this.resultBitmap;
-        this.resultBitmap = null;
-        if (resultBitmap != null) {
-            resultBitmap.recycle();
-        }
-        invalidate();
+    fun drawViewfinder() {
+        val resultBitmap = this.resultBitmap
+        this.resultBitmap = null
+        resultBitmap?.recycle()
+        invalidate()
     }
 
     /**
@@ -234,9 +236,9 @@ public class ViewfinderView extends View {
      *
      * @param result An image of the result.
      */
-    public void drawResultBitmap(Bitmap result) {
-        resultBitmap = result;
-        invalidate();
+    fun drawResultBitmap(result: Bitmap?) {
+        resultBitmap = result
+        invalidate()
     }
 
     /**
@@ -244,16 +246,25 @@ public class ViewfinderView extends View {
      *
      * @param point a point to draw, relative to the preview frame
      */
-    public void addPossibleResultPoint(ResultPoint point) {
-        if (possibleResultPoints.size() < MAX_RESULT_POINTS)
-            possibleResultPoints.add(point);
+    fun addPossibleResultPoint(point: ResultPoint) {
+        if (possibleResultPoints.size < MAX_RESULT_POINTS) possibleResultPoints.add(point)
     }
 
-    public void setMaskColor(int maskColor) {
-        this.maskColor = maskColor;
+    fun setMaskColor(maskColor: Int) {
+        this.maskColor = maskColor
     }
 
-    public void setLaserVisibility(boolean visible) {
-        this.laserVisibility = visible;
+    fun setLaserVisibility(visible: Boolean) {
+        this.laserVisibility = visible
+    }
+
+    companion object {
+        protected val TAG: String = ViewfinderView::class.java.simpleName
+
+        protected val SCANNER_ALPHA: IntArray = intArrayOf(0, 64, 128, 192, 255, 192, 128, 64)
+        protected const val ANIMATION_DELAY: Long = 80L
+        protected const val CURRENT_POINT_OPACITY: Int = 0xA0
+        protected const val MAX_RESULT_POINTS: Int = 20
+        protected const val POINT_SIZE: Int = 6
     }
 }

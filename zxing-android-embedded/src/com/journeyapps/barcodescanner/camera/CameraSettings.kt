@@ -1,41 +1,18 @@
-package com.journeyapps.barcodescanner.camera;
+package com.journeyapps.barcodescanner.camera
 
-import com.google.zxing.client.android.camera.open.OpenCameraInterface;
+import com.google.zxing.client.android.camera.open.OpenCameraInterface
 
 /**
  *
  */
-public class CameraSettings {
-    private int requestedCameraId = OpenCameraInterface.NO_REQUESTED_CAMERA;
-    private boolean scanInverted = false;
-    private boolean barcodeSceneModeEnabled = false;
-    private boolean meteringEnabled = false;
-    private boolean autoFocusEnabled = true;
-    private boolean continuousFocusEnabled = false;
-    private boolean exposureEnabled = false;
-    private boolean autoTorchEnabled = false;
-    private FocusMode focusMode = FocusMode.AUTO;
-
-    public enum FocusMode {
-        AUTO,
-        CONTINUOUS,
-        INFINITY,
-        MACRO
-    }
-
-    public int getRequestedCameraId() {
-        return requestedCameraId;
-    }
-
+class CameraSettings {
     /**
      * Allows third party apps to specify the camera ID, rather than determine
      * it automatically based on available cameras and their orientation.
      *
      * @param requestedCameraId camera ID of the camera to use. A negative value means "no preference".
      */
-    public void setRequestedCameraId(int requestedCameraId) {
-        this.requestedCameraId = requestedCameraId;
-    }
+    var requestedCameraId: Int = OpenCameraInterface.NO_REQUESTED_CAMERA
 
     /**
      * Default to false.
@@ -44,39 +21,14 @@ public class CameraSettings {
      *
      * @return true if scan is inverted
      */
-    public boolean isScanInverted() {
-        return scanInverted;
-    }
-
-    public void setScanInverted(boolean scanInverted) {
-        this.scanInverted = scanInverted;
-    }
+    var isScanInverted: Boolean = false
 
     /**
      * Default to false.
      *
      * @return true if barcode scene mode is enabled
      */
-    public boolean isBarcodeSceneModeEnabled() {
-        return barcodeSceneModeEnabled;
-    }
-
-    public void setBarcodeSceneModeEnabled(boolean barcodeSceneModeEnabled) {
-        this.barcodeSceneModeEnabled = barcodeSceneModeEnabled;
-    }
-
-    /**
-     * Default to false.
-     *
-     * @return true if exposure is enabled.
-     */
-    public boolean isExposureEnabled() {
-        return exposureEnabled;
-    }
-
-    public void setExposureEnabled(boolean exposureEnabled) {
-        this.exposureEnabled = exposureEnabled;
-    }
+    var isBarcodeSceneModeEnabled: Boolean = false
 
     /**
      * Default to false.
@@ -85,12 +37,36 @@ public class CameraSettings {
      *
      * @return true if metering is enabled
      */
-    public boolean isMeteringEnabled() {
-        return meteringEnabled;
-    }
+    var isMeteringEnabled: Boolean = false
+    private var autoFocusEnabled = true
+    private var continuousFocusEnabled = false
 
-    public void setMeteringEnabled(boolean meteringEnabled) {
-        this.meteringEnabled = meteringEnabled;
+    /**
+     * Default to false.
+     *
+     * @return true if exposure is enabled.
+     */
+    var isExposureEnabled: Boolean = false
+
+    /**
+     * Default to false.
+     *
+     * @return true if the torch is automatically controlled based on ambient light.
+     */
+    var isAutoTorchEnabled: Boolean = false
+
+    /**
+     * Default to FocusMode.AUTO.
+     *
+     * @return value of selected focus mode
+     */
+    var focusMode: FocusMode? = FocusMode.AUTO
+
+    enum class FocusMode {
+        AUTO,
+        CONTINUOUS,
+        INFINITY,
+        MACRO
     }
 
     /**
@@ -98,19 +74,19 @@ public class CameraSettings {
      *
      * @return true if auto-focus is enabled
      */
-    public boolean isAutoFocusEnabled() {
-        return autoFocusEnabled;
+    fun isAutoFocusEnabled(): Boolean {
+        return autoFocusEnabled
     }
 
-    public void setAutoFocusEnabled(boolean autoFocusEnabled) {
-        this.autoFocusEnabled = autoFocusEnabled;
+    fun setAutoFocusEnabled(autoFocusEnabled: Boolean) {
+        this.autoFocusEnabled = autoFocusEnabled
 
-        if (autoFocusEnabled && continuousFocusEnabled) {
-            focusMode = FocusMode.CONTINUOUS;
+        focusMode = if (autoFocusEnabled && continuousFocusEnabled) {
+            FocusMode.CONTINUOUS
         } else if (autoFocusEnabled) {
-            focusMode = FocusMode.AUTO;
+            FocusMode.AUTO
         } else {
-            focusMode = null;
+            null
         }
     }
 
@@ -119,45 +95,19 @@ public class CameraSettings {
      *
      * @return true if continuous focus is enabled
      */
-    public boolean isContinuousFocusEnabled() {
-        return continuousFocusEnabled;
+    fun isContinuousFocusEnabled(): Boolean {
+        return continuousFocusEnabled
     }
 
-    public void setContinuousFocusEnabled(boolean continuousFocusEnabled) {
-        this.continuousFocusEnabled = continuousFocusEnabled;
+    fun setContinuousFocusEnabled(continuousFocusEnabled: Boolean) {
+        this.continuousFocusEnabled = continuousFocusEnabled
 
-        if (continuousFocusEnabled) {
-            focusMode = FocusMode.CONTINUOUS;
+        focusMode = if (continuousFocusEnabled) {
+            FocusMode.CONTINUOUS
         } else if (autoFocusEnabled) {
-            focusMode = FocusMode.AUTO;
+            FocusMode.AUTO
         } else {
-            focusMode = null;
+            null
         }
-    }
-
-    /**
-     * Default to FocusMode.AUTO.
-     *
-     * @return value of selected focus mode
-     */
-    public FocusMode getFocusMode() {
-        return focusMode;
-    }
-
-    public void setFocusMode(FocusMode focusMode) {
-        this.focusMode = focusMode;
-    }
-
-    /**
-     * Default to false.
-     *
-     * @return true if the torch is automatically controlled based on ambient light.
-     */
-    public boolean isAutoTorchEnabled() {
-        return autoTorchEnabled;
-    }
-
-    public void setAutoTorchEnabled(boolean autoTorchEnabled) {
-        this.autoTorchEnabled = autoTorchEnabled;
     }
 }

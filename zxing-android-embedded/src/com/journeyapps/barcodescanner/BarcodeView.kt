@@ -1,207 +1,202 @@
-package com.journeyapps.barcodescanner;
+package com.journeyapps.barcodescanner
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
-import android.util.AttributeSet;
-
-import com.google.zxing.DecodeHintType;
-import com.google.zxing.ResultPoint;
-import com.google.zxing.client.android.R;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.content.Context
+import android.os.Handler
+import android.util.AttributeSet
+import com.google.zxing.DecodeHintType
+import com.google.zxing.ResultPoint
+import com.google.zxing.client.android.R
+import com.journeyapps.barcodescanner.Util.validateMainThread
 
 /**
  * A view for scanning barcodes.
- * <p>
+ *
+ *
  * Two methods MUST be called to manage the state:
  * 1. resume() - initialize the camera and start the preview. Call from the Activity's onResume().
  * 2. pause() - stop the preview and release any resources. Call from the Activity's onPause().
- * <p>
+ *
+ *
  * Start decoding with decodeSingle() or decodeContinuous(). Stop decoding with stopDecoding().
  *
  * @see CameraPreview for more details on the preview lifecycle.
  */
-public class BarcodeView extends CameraPreview {
-
-    private enum DecodeMode {
+class BarcodeView : CameraPreview {
+    private enum class DecodeMode {
         NONE,
         SINGLE,
         CONTINUOUS
     }
 
-    private DecodeMode decodeMode = DecodeMode.NONE;
-    private BarcodeCallback callback = null;
-    private DecoderThread decoderThread;
+    private var decodeMode = DecodeMode.NONE
+    private var callback: BarcodeCallback? = null
+    private var decoderThread: DecoderThread? = null
 
-    private DecoderFactory decoderFactory;
+    private var decoderFactory: DecoderFactory? = null
 
 
-    private Handler resultHandler;
+    private var resultHandler: Handler? = null
 
-    private final Handler.Callback resultCallback = new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            if (message.what == R.id.zxing_decode_succeeded) {
-                BarcodeResult result = (BarcodeResult) message.obj;
+    private val resultCallback = Handler.Callback { message ->
+        if (message.what == R.id.zxing_decode_succeeded) {
+            val result = message.obj as BarcodeResult
 
-                if (result != null) {
-                    if (callback != null && decodeMode != DecodeMode.NONE) {
-                        callback.barcodeResult(result);
-                        if (decodeMode == DecodeMode.SINGLE) {
-                            stopDecoding();
-                        }
+            if (result != null) {
+                if (callback != null && decodeMode != DecodeMode.NONE) {
+                    callback!!.barcodeResult(result)
+                    if (decodeMode == DecodeMode.SINGLE) {
+                        stopDecoding()
                     }
                 }
-                return true;
-            } else if (message.what == R.id.zxing_decode_failed) {
-                // Failed. Next preview is automatically tried.
-                return true;
-            } else if (message.what == R.id.zxing_possible_result_points) {
-                //noinspection unchecked
-                List<ResultPoint> resultPoints = (List<ResultPoint>) message.obj;
-                if (callback != null && decodeMode != DecodeMode.NONE) {
-                    callback.possibleResultPoints(resultPoints);
-                }
-                return true;
             }
-            return false;
+            return@Callback true
+        } else if (message.what == R.id.zxing_decode_failed) {
+            // Failed. Next preview is automatically tried.
+            return@Callback true
+        } else if (message.what == R.id.zxing_possible_result_points) {
+            val resultPoints = message.obj as List<ResultPoint>
+            if (callback != null && decodeMode != DecodeMode.NONE) {
+                callback!!.possibleResultPoints(resultPoints)
+            }
+            return@Callback true
         }
-    };
-
-
-    public BarcodeView(Context context) {
-        super(context);
-        initialize();
+        false
     }
 
-    public BarcodeView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initialize();
+
+    constructor(context: Context) : super(context) {
+        initialize()
     }
 
-    public BarcodeView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initialize();
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        initialize()
     }
 
-    private void initialize() {
-        decoderFactory = new DefaultDecoderFactory();
-        resultHandler = new Handler(resultCallback);
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
+        initialize()
+    }
+
+    private fun initialize() {
+        decoderFactory = DefaultDecoderFactory()
+        resultHandler = Handler(resultCallback)
     }
 
     /**
      * Set the DecoderFactory to use. Use this to specify the formats to decode.
-     * <p>
+     *
+     *
      * Call this from UI thread only.
      *
      * @param decoderFactory the DecoderFactory creating Decoders.
      * @see DefaultDecoderFactory
      */
-    public void setDecoderFactory(DecoderFactory decoderFactory) {
-        Util.validateMainThread();
+    fun setDecoderFactory(decoderFactory: DecoderFactory?) {
+        validateMainThread()
 
-        this.decoderFactory = decoderFactory;
+        this.decoderFactory = decoderFactory
         if (this.decoderThread != null) {
-            this.decoderThread.setDecoder(createDecoder());
+            decoderThread!!.decoder = createDecoder()!!
         }
     }
 
-    private Decoder createDecoder() {
+    private fun createDecoder(): Decoder? {
         if (decoderFactory == null) {
-            decoderFactory = createDefaultDecoderFactory();
+            decoderFactory = createDefaultDecoderFactory()
         }
-        DecoderResultPointCallback callback = new DecoderResultPointCallback();
-        Map<DecodeHintType, Object> hints = new HashMap<>();
-        hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, callback);
-        Decoder decoder = this.decoderFactory.createDecoder(hints);
-        callback.setDecoder(decoder);
-        return decoder;
+        val callback = DecoderResultPointCallback()
+        val hints: MutableMap<DecodeHintType?, Any?> = HashMap()
+        hints[DecodeHintType.NEED_RESULT_POINT_CALLBACK] = callback
+        val decoder = decoderFactory!!.createDecoder(hints)
+        callback.decoder = decoder
+        return decoder
     }
 
     /**
      * @return the current DecoderFactory in use.
      */
-    public DecoderFactory getDecoderFactory() {
-        return decoderFactory;
+    fun getDecoderFactory(): DecoderFactory? {
+        return decoderFactory
     }
 
     /**
      * Decode a single barcode, then stop decoding.
-     * <p>
+     *
+     *
      * The callback will only be called on the UI thread.
      *
      * @param callback called with the barcode result, as well as possible ResultPoints
      */
-    public void decodeSingle(BarcodeCallback callback) {
-        this.decodeMode = DecodeMode.SINGLE;
-        this.callback = callback;
-        startDecoderThread();
+    fun decodeSingle(callback: BarcodeCallback?) {
+        this.decodeMode = DecodeMode.SINGLE
+        this.callback = callback
+        startDecoderThread()
     }
 
     /**
      * Continuously decode barcodes. The same barcode may be returned multiple times per second.
-     * <p>
+     *
+     *
      * The callback will only be called on the UI thread.
      *
      * @param callback called with the barcode result, as well as possible ResultPoints
      */
-    public void decodeContinuous(BarcodeCallback callback) {
-        this.decodeMode = DecodeMode.CONTINUOUS;
-        this.callback = callback;
-        startDecoderThread();
+    fun decodeContinuous(callback: BarcodeCallback?) {
+        this.decodeMode = DecodeMode.CONTINUOUS
+        this.callback = callback
+        startDecoderThread()
     }
 
     /**
      * Stop decoding, but do not stop the preview.
      */
-    public void stopDecoding() {
-        this.decodeMode = DecodeMode.NONE;
-        this.callback = null;
-        stopDecoderThread();
+    fun stopDecoding() {
+        this.decodeMode = DecodeMode.NONE
+        this.callback = null
+        stopDecoderThread()
     }
 
-    protected DecoderFactory createDefaultDecoderFactory() {
-        return new DefaultDecoderFactory();
+    protected fun createDefaultDecoderFactory(): DecoderFactory {
+        return DefaultDecoderFactory()
     }
 
-    private void startDecoderThread() {
-        stopDecoderThread(); // To be safe
+    private fun startDecoderThread() {
+        stopDecoderThread() // To be safe
 
-        if (decodeMode != DecodeMode.NONE && isPreviewActive()) {
+        if (decodeMode != DecodeMode.NONE && isPreviewActive) {
             // We only start the thread if both:
             // 1. decoding was requested
             // 2. the preview is active
-            decoderThread = new DecoderThread(getCameraInstance(), createDecoder(), resultHandler);
-            decoderThread.setCropRect(getPreviewFramingRect());
-            decoderThread.start();
+            decoderThread = DecoderThread(cameraInstance, createDecoder()!!, resultHandler)
+            decoderThread!!.cropRect = previewFramingRect
+            decoderThread!!.start()
         }
     }
 
-    @Override
-    protected void previewStarted() {
-        super.previewStarted();
+    override fun previewStarted() {
+        super.previewStarted()
 
-        startDecoderThread();
+        startDecoderThread()
     }
 
-    private void stopDecoderThread() {
+    private fun stopDecoderThread() {
         if (decoderThread != null) {
-            decoderThread.stop();
-            decoderThread = null;
+            decoderThread!!.stop()
+            decoderThread = null
         }
     }
 
     /**
      * Stops the live preview and decoding.
-     * <p>
+     *
+     *
      * Call from the Activity's onPause() method.
      */
-    @Override
-    public void pause() {
-        stopDecoderThread();
-        super.pause();
+    override fun pause() {
+        stopDecoderThread()
+        super.pause()
     }
 }

@@ -25,8 +25,8 @@ import androidx.fragment.app.Fragment;
 
 public class MainActivity extends AppCompatActivity {
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
-        if (result.getContents() == null) {
-            Intent originalIntent = result.getOriginalIntent();
+        if (result.contents == null) {
+            Intent originalIntent = result.originalIntent;
             if (originalIntent == null) {
                 Log.d("MainActivity", "Cancelled scan");
                 Toast.makeText(MainActivity.this, "Cancelled", Toast.LENGTH_LONG).show();
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             Log.d("MainActivity", "Scanned");
-            Toast.makeText(MainActivity.this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Scanned: " + result.contents, Toast.LENGTH_LONG).show();
         }
     });
 
@@ -59,7 +59,8 @@ public class MainActivity extends AppCompatActivity {
         aaa.buttonColor = null;
         aaa.buttonTextColor = "#FFFFFF";
 
-        ScanOptions options = new ScanOptions().addExtra(Util.dataTransfer_Key, new Gson().toJson(aaa));
+        ScanOptions options = new ScanOptions()
+                .addExtra(Util.dataTransfer_Key, new Gson().toJson(aaa));
         options.setOrientationLocked(true);
 
         barcodeLauncher.launch(options);

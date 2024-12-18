@@ -13,122 +13,118 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.journeyapps.barcodescanner.camera
 
-package com.journeyapps.barcodescanner.camera;
-
-import android.hardware.Camera;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.Collection;
+import android.hardware.Camera
+import android.hardware.Camera.AutoFocusCallback
+import android.os.Handler
+import android.util.Log
 
 /**
  * This should be created and used from the camera thread only. The thread message queue is used
  * to run all operations on the same thread.
  */
-public final class AutoFocusManager {
+class AutoFocusManager(private val camera: Camera, settings: CameraSettings) {
+    private var stopped = false
+    private var focusing = false
+    private val useAutoFocus: Boolean
+    private val handler: Handler
 
-    private static final String TAG = AutoFocusManager.class.getSimpleName();
+    private val MESSAGE_FOCUS = 1
 
-    private static final long AUTO_FOCUS_INTERVAL_MS = 2000L;
-
-    private boolean stopped;
-    private boolean focusing;
-    private final boolean useAutoFocus;
-    private final Camera camera;
-    private Handler handler;
-
-    private int MESSAGE_FOCUS = 1;
-
-    private static final Collection<String> FOCUS_MODES_CALLING_AF;
-
-    static {
-        FOCUS_MODES_CALLING_AF = new ArrayList<>(2);
-        FOCUS_MODES_CALLING_AF.add(Camera.Parameters.FOCUS_MODE_AUTO);
-        FOCUS_MODES_CALLING_AF.add(Camera.Parameters.FOCUS_MODE_MACRO);
-    }
-
-    private final Handler.Callback focusHandlerCallback = new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
+    private val focusHandlerCallback =
+        Handler.Callback { msg ->
             if (msg.what == MESSAGE_FOCUS) {
-                focus();
-                return true;
+                focus()
+                return@Callback true
             }
-            return false;
+            false
         }
-    };
 
-    private final Camera.AutoFocusCallback autoFocusCallback = new Camera.AutoFocusCallback() {
-        @Override
-        public void onAutoFocus(boolean success, Camera theCamera) {
-            handler.post(() -> {
-                focusing = false;
-                autoFocusAgainLater();
-            });
+    private val autoFocusCallback =
+        AutoFocusCallback { success, theCamera ->
+            handler.post {
+                focusing = false
+                autoFocusAgainLater()
+            }
         }
-    };
 
-    public AutoFocusManager(Camera camera, CameraSettings settings) {
-        this.handler = new Handler(focusHandlerCallback);
-        this.camera = camera;
-        String currentFocusMode = camera.getParameters().getFocusMode();
-        useAutoFocus = settings.isAutoFocusEnabled() && FOCUS_MODES_CALLING_AF.contains(currentFocusMode);
-        Log.i(TAG, "Current focus mode '" + currentFocusMode + "'; use auto focus? " + useAutoFocus);
-        start();
+    init {
+        this.handler = Handler(focusHandlerCallback)
+        val currentFocusMode = camera.parameters.focusMode
+        useAutoFocus =
+            settings.isAutoFocusEnabled && FOCUS_MODES_CALLING_AF.contains(currentFocusMode)
+        Log.i(
+            TAG,
+            "Current focus mode '$currentFocusMode'; use auto focus? $useAutoFocus"
+        )
+        start()
     }
 
-    private synchronized void autoFocusAgainLater() {
+    @Synchronized
+    private fun autoFocusAgainLater() {
         if (!stopped && !handler.hasMessages(MESSAGE_FOCUS)) {
-            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_FOCUS), AUTO_FOCUS_INTERVAL_MS);
+            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_FOCUS), AUTO_FOCUS_INTERVAL_MS)
         }
     }
 
     /**
      * Start auto-focus. The first focus will happen now, then repeated every two seconds.
      */
-    public void start() {
-        stopped = false;
-        focus();
+    fun start() {
+        stopped = false
+        focus()
     }
 
-    private void focus() {
+    private fun focus() {
         if (useAutoFocus) {
             if (!stopped && !focusing) {
                 try {
-                    camera.autoFocus(autoFocusCallback);
-                    focusing = true;
-                } catch (RuntimeException re) {
+                    camera.autoFocus(autoFocusCallback)
+                    focusing = true
+                } catch (re: RuntimeException) {
                     // Have heard RuntimeException reported in Android 4.0.x+; continue?
-                    Log.w(TAG, "Unexpected exception while focusing", re);
+                    Log.w(TAG, "Unexpected exception while focusing", re)
                     // Try again later to keep cycle going
-                    autoFocusAgainLater();
+                    autoFocusAgainLater()
                 }
             }
         }
     }
 
-    private void cancelOutstandingTask() {
-        handler.removeMessages(MESSAGE_FOCUS);
+    private fun cancelOutstandingTask() {
+        handler.removeMessages(MESSAGE_FOCUS)
     }
 
     /**
      * Stop auto-focus.
      */
-    public void stop() {
-        stopped = true;
-        focusing = false;
-        cancelOutstandingTask();
+    fun stop() {
+        stopped = true
+        focusing = false
+        cancelOutstandingTask()
         if (useAutoFocus) {
             // Doesn't hurt to call this even if not focusing
             try {
-                camera.cancelAutoFocus();
-            } catch (RuntimeException re) {
+                camera.cancelAutoFocus()
+            } catch (re: RuntimeException) {
                 // Have heard RuntimeException reported in Android 4.0.x+; continue?
-                Log.w(TAG, "Unexpected exception while cancelling focusing", re);
+                Log.w(TAG, "Unexpected exception while cancelling focusing", re)
             }
+        }
+    }
+
+    companion object {
+        private val TAG: String = AutoFocusManager::class.java.simpleName
+
+        private const val AUTO_FOCUS_INTERVAL_MS = 2000L
+
+        private val FOCUS_MODES_CALLING_AF: MutableCollection<String> =
+            ArrayList(2)
+
+        init {
+            FOCUS_MODES_CALLING_AF.add(Camera.Parameters.FOCUS_MODE_AUTO)
+            FOCUS_MODES_CALLING_AF.add(Camera.Parameters.FOCUS_MODE_MACRO)
         }
     }
 }
