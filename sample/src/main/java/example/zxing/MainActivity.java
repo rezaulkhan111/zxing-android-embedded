@@ -10,17 +10,24 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.zxing.client.android.Intents;
-import com.journeyapps.barcodescanner.CustomDataModel;
-import com.journeyapps.barcodescanner.ScanContract;
-import com.journeyapps.barcodescanner.ScanOptions;
-import com.journeyapps.barcodescanner.Util;
-import com.mikepenz.aboutlibraries.LibsBuilder;
+//import com.google.gson.Gson;
+//import com.google.zxing.client.android.Intents;
+//import com.journeyapps.barcodescanner.CustomDataModel;
+//import com.journeyapps.barcodescanner.ScanContract;
+//import com.journeyapps.barcodescanner.ScanOptions;
+//import com.journeyapps.barcodescanner.Util;
+//import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
+import com.google.gson.Gson;
+import com.journeyapps.barcodescanner.CustomDataModel;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
+import com.journeyapps.barcodescanner.Util;
+import com.journeyapps.barcodescanner.google.Intents;
 
 
 public class MainActivity extends AppCompatActivity {

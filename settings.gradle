@@ -7,5 +7,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "zxing-android-embedded"
-include ':zxing-android-embedded'
 include ':sample'
+include ':zxing-android-embedded-library'
